@@ -292,6 +292,15 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		return p.Next()
+
+	case typeSetIntSet:
+		p.iterator = &intSetIterator{
+			DataKey: key,
+			Reader:  p.reader,
+			Mapper:  setMapper{},
+		}
+
+		return p.Next()
 	}
 
 	return nil, fmt.Errorf("unsupported data type %d", p.dataType)

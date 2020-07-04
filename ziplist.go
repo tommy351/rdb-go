@@ -29,13 +29,13 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	}
 
 	if z.buf == nil {
-		buf, err := readString(z.Reader)
+		s, err := readString(z.Reader)
 
 		if err != nil {
 			return nil, err
 		}
 
-		z.buf = bytes.NewBufferString(buf)
+		z.buf = bytes.NewBufferString(s)
 
 		if z.zlBytes, err = readUint32(z.buf); err != nil {
 			return nil, err
