@@ -1,6 +1,10 @@
 package rdb
 
-import "io"
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
 
 type SortedSetValue struct {
 	Value interface{}
@@ -87,4 +91,54 @@ func (sortedSetMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 	}
 
 	return data, nil
+}
+
+var _ valueReader = sortedSetZipListValueReader{}
+
+type sortedSetZipListValueReader struct{}
+
+func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+	value, err := readZipListEntry(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	score, err := readZipListEntry(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	scoreFloat, err := s.toFloat(score)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return SortedSetValue{
+		Value: value,
+		Score: scoreFloat,
+	}, nil
+}
+
+func (sortedSetZipListValueReader) toFloat(value interface{}) (float64, error) {
+	switch v := value.(type) {
+	case int8:
+		return float64(v), nil
+	case int16:
+		return float64(v), nil
+	case int32:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case float32:
+		return float64(v), nil
+	case float64:
+		return v, nil
+	case string:
+		return strconv.ParseFloat(v, 64)
+	}
+
+	return 0, fmt.Errorf("unable to convert value %v to float", value)
 }
