@@ -12,7 +12,7 @@ type SortedSetHead struct {
 	Length int64
 }
 
-type SortedSetElement struct {
+type SortedSetEntry struct {
 	DataKey
 	SortedSetValue
 	Index  int64
@@ -68,8 +68,8 @@ func (sortedSetMapper) MapHead(head *collectionHead) (interface{}, error) {
 	}, nil
 }
 
-func (sortedSetMapper) MapElement(element *collectionElement) (interface{}, error) {
-	return &SortedSetElement{
+func (sortedSetMapper) MapEntry(element *collectionEntry) (interface{}, error) {
+	return &SortedSetEntry{
 		DataKey:        element.DataKey,
 		SortedSetValue: element.Value.(SortedSetValue),
 		Index:          element.Index,

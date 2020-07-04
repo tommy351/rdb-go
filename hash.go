@@ -12,7 +12,7 @@ type HashHead struct {
 	Length int64
 }
 
-type HashElement struct {
+type HashEntry struct {
 	DataKey
 	HashValue
 	Length int64
@@ -57,8 +57,8 @@ func (hashMapper) MapHead(head *collectionHead) (interface{}, error) {
 	}, nil
 }
 
-func (hashMapper) MapElement(element *collectionElement) (interface{}, error) {
-	return &HashElement{
+func (hashMapper) MapEntry(element *collectionEntry) (interface{}, error) {
+	return &HashEntry{
 		DataKey:   element.DataKey,
 		HashValue: element.Value.(HashValue),
 		Length:    element.Length,

@@ -5,7 +5,7 @@ type SetHead struct {
 	Length int64
 }
 
-type SetElement struct {
+type SetEntry struct {
 	DataKey
 	Index  int64
 	Length int64
@@ -28,8 +28,8 @@ func (setMapper) MapHead(head *collectionHead) (interface{}, error) {
 	}, nil
 }
 
-func (setMapper) MapElement(element *collectionElement) (interface{}, error) {
-	return &SetElement{
+func (setMapper) MapEntry(element *collectionEntry) (interface{}, error) {
+	return &SetEntry{
 		DataKey: element.DataKey,
 		Index:   element.Index,
 		Length:  element.Length,

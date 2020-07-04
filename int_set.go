@@ -71,7 +71,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 		return nil, err
 	}
 
-	element, err := i.Mapper.MapElement(&collectionElement{
+	element, err := i.Mapper.MapEntry(&collectionEntry{
 		DataKey: i.DataKey,
 		Index:   i.index,
 		Length:  i.length,

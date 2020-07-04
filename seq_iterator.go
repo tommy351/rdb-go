@@ -52,7 +52,7 @@ func (s *seqIterator) Next() (interface{}, error) {
 		return nil, err
 	}
 
-	element, err := s.Mapper.MapElement(&collectionElement{
+	element, err := s.Mapper.MapEntry(&collectionEntry{
 		DataKey: s.DataKey,
 		Index:   s.index,
 		Length:  s.length,

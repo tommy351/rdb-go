@@ -77,7 +77,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		return nil, err
 	}
 
-	element, err := z.Mapper.MapElement(&collectionElement{
+	element, err := z.Mapper.MapEntry(&collectionEntry{
 		DataKey: z.DataKey,
 		Index:   z.index,
 		Length:  z.length,

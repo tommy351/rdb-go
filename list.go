@@ -7,7 +7,7 @@ type ListHead struct {
 	Length int64
 }
 
-type ListElement struct {
+type ListEntry struct {
 	DataKey
 	Index  int64
 	Length int64
@@ -30,8 +30,8 @@ func (listMapper) MapHead(head *collectionHead) (interface{}, error) {
 	}, nil
 }
 
-func (listMapper) MapElement(element *collectionElement) (interface{}, error) {
-	return &ListElement{
+func (listMapper) MapEntry(element *collectionEntry) (interface{}, error) {
+	return &ListEntry{
 		DataKey: element.DataKey,
 		Index:   element.Index,
 		Length:  element.Length,

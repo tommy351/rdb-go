@@ -11,7 +11,7 @@ type collectionHead struct {
 	Length  int64
 }
 
-type collectionElement struct {
+type collectionEntry struct {
 	DataKey DataKey
 	Index   int64
 	Length  int64
@@ -25,7 +25,7 @@ type collectionSlice struct {
 
 type collectionMapper interface {
 	MapHead(*collectionHead) (interface{}, error)
-	MapElement(*collectionElement) (interface{}, error)
+	MapEntry(*collectionEntry) (interface{}, error)
 	MapSlice(*collectionSlice) (interface{}, error)
 }
 
