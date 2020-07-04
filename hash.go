@@ -78,3 +78,32 @@ func (hashMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 	return data, nil
 }
+
+var _ valueReader = hashZipListValueReader{}
+
+type hashZipListValueReader struct{}
+
+func (hashZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+	key, err := readZipListEntry(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	value, err := readZipListEntry(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	keyString, err := convertToString(key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return HashValue{
+		Index: keyString,
+		Value: value,
+	}, nil
+}

@@ -1,9 +1,7 @@
 package rdb
 
 import (
-	"fmt"
 	"io"
-	"strconv"
 )
 
 type SortedSetValue struct {
@@ -110,7 +108,7 @@ func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error)
 		return nil, err
 	}
 
-	scoreFloat, err := s.toFloat(score)
+	scoreFloat, err := convertToFloat64(score)
 
 	if err != nil {
 		return nil, err
@@ -120,25 +118,4 @@ func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error)
 		Value: value,
 		Score: scoreFloat,
 	}, nil
-}
-
-func (sortedSetZipListValueReader) toFloat(value interface{}) (float64, error) {
-	switch v := value.(type) {
-	case int8:
-		return float64(v), nil
-	case int16:
-		return float64(v), nil
-	case int32:
-		return float64(v), nil
-	case int64:
-		return float64(v), nil
-	case float32:
-		return float64(v), nil
-	case float64:
-		return v, nil
-	case string:
-		return strconv.ParseFloat(v, 64)
-	}
-
-	return 0, fmt.Errorf("unable to convert value %v to float", value)
 }

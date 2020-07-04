@@ -311,6 +311,16 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		return p.Next()
+
+	case typeHashZipList:
+		p.iterator = &zipListIterator{
+			DataKey:     key,
+			Reader:      p.reader,
+			ValueReader: hashZipListValueReader{},
+			Mapper:      hashMapper{},
+		}
+
+		return p.Next()
 	}
 
 	return nil, fmt.Errorf("unsupported data type %d", p.dataType)

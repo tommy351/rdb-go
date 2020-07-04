@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -259,4 +260,38 @@ func read24BitSignedNumber(r io.Reader) (int, error) {
 	}
 
 	return int(binary.LittleEndian.Uint32(append([]byte{0}, buf...))) >> 8, nil
+}
+
+func convertToFloat64(value interface{}) (float64, error) {
+	v := reflect.ValueOf(value)
+
+	switch v.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return float64(v.Int()), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return float64(v.Uint()), nil
+	case reflect.Float32, reflect.Float64:
+		return v.Float(), nil
+	case reflect.String:
+		return strconv.ParseFloat(v.String(), 64)
+	}
+
+	return 0, fmt.Errorf("unable to convert value %v to float64", value)
+}
+
+func convertToString(value interface{}) (string, error) {
+	v := reflect.ValueOf(value)
+
+	switch v.Kind() {
+	case reflect.String:
+		return v.String(), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(v.Int(), 10), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return strconv.FormatUint(v.Uint(), 10), nil
+	case reflect.Float32, reflect.Float64:
+		return strconv.FormatFloat(v.Float(), 'f', -1, 64), nil
+	}
+
+	return "", fmt.Errorf("unable to convert value %v to string", value)
 }
