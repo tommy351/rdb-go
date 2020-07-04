@@ -58,7 +58,6 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 
 		return z.Mapper.MapSlice(&collectionSlice{
 			DataKey: z.DataKey,
-			Length:  z.length,
 			Value:   z.values,
 		})
 	}
@@ -67,16 +66,16 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 		return nil, err
 	}
 
-	keyBuf := make([]byte, keyLength)
+	var value HashValue
 
-	if _, err := io.ReadFull(z.buf, keyBuf); err != nil {
+	if value.Index, err = readStringByLength(z.buf, keyLength); err != nil {
 		return nil, err
 	}
 
 	valueLength, err := z.readLength()
 
 	if err == io.EOF {
-		return nil, fmt.Errorf("unexpected end of zip map for key %q", keyBuf)
+		return nil, fmt.Errorf("unexpected end of zip map for key %q", value.Index)
 	}
 
 	if err != nil {
@@ -88,15 +87,8 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 		return nil, err
 	}
 
-	valueBuf := make([]byte, valueLength)
-
-	if _, err := io.ReadFull(z.buf, valueBuf); err != nil {
+	if value.Value, err = readStringByLength(z.buf, valueLength); err != nil {
 		return nil, err
-	}
-
-	value := HashValue{
-		Index: string(keyBuf),
-		Value: string(valueBuf),
 	}
 
 	element, err := z.Mapper.MapElement(&collectionElement{

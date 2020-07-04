@@ -42,7 +42,6 @@ func (s *seqIterator) Next() (interface{}, error) {
 		s.done = true
 		return s.Mapper.MapSlice(&collectionSlice{
 			DataKey: s.DataKey,
-			Length:  s.length,
 			Value:   s.values,
 		})
 	}

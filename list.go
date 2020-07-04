@@ -1,5 +1,7 @@
 package rdb
 
+import "io"
+
 type ListHead struct {
 	DataKey
 	Length int64
@@ -42,4 +44,12 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 		DataKey: slice.DataKey,
 		Value:   slice.Value,
 	}, nil
+}
+
+var _ valueReader = listZipListValueReader{}
+
+type listZipListValueReader struct{}
+
+func (listZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+	return readZipListEntry(r)
 }

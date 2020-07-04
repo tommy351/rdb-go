@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -49,7 +48,7 @@ const (
 )
 
 var (
-	magicString = []byte("REDIS")
+	magicString = "REDIS"
 
 	minVersion = 1
 	maxVersion = 9
@@ -168,13 +167,13 @@ func (p *Parser) Next() (interface{}, error) {
 }
 
 func (p *Parser) verifyMagicString() error {
-	buf := make([]byte, len(magicString))
+	s, err := readStringByLength(p.reader, int64(len(magicString)))
 
-	if _, err := io.ReadFull(p.reader, buf); err != nil {
+	if err != nil {
 		return err
 	}
 
-	if !bytes.Equal(buf, magicString) {
+	if s != magicString {
 		return errors.New("invalid magic string")
 	}
 
@@ -182,13 +181,13 @@ func (p *Parser) verifyMagicString() error {
 }
 
 func (p *Parser) verifyVersion() error {
-	buf := make([]byte, 4)
+	s, err := readStringByLength(p.reader, 4)
 
-	if _, err := io.ReadFull(p.reader, buf); err != nil {
+	if err != nil {
 		return err
 	}
 
-	version, err := strconv.Atoi(string(buf))
+	version, err := strconv.Atoi(s)
 
 	if err != nil {
 		return fmt.Errorf("invalid version: %w", err)
@@ -280,6 +279,16 @@ func (p *Parser) readData() (interface{}, error) {
 			DataKey: key,
 			Reader:  p.reader,
 			Mapper:  hashMapper{},
+		}
+
+		return p.Next()
+
+	case typeListZipList:
+		p.iterator = &zipListIterator{
+			DataKey:     key,
+			Reader:      p.reader,
+			ValueReader: listZipListValueReader{},
+			Mapper:      listMapper{},
 		}
 
 		return p.Next()

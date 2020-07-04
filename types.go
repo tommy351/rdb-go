@@ -20,7 +20,6 @@ type collectionElement struct {
 
 type collectionSlice struct {
 	DataKey DataKey
-	Length  int64
 	Value   []interface{}
 }
 
