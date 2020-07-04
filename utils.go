@@ -7,6 +7,8 @@ import (
 	"math"
 	"strconv"
 	"time"
+
+	lzf "github.com/zhuyie/golzf"
 )
 
 func readByte(r io.Reader) (byte, error) {
@@ -35,6 +37,11 @@ func readUint64(r io.Reader) (value uint64, err error) {
 }
 
 func readUint32BE(r io.Reader) (value uint32, err error) {
+	err = binary.Read(r, binary.BigEndian, &value)
+	return
+}
+
+func readUint64BE(r io.Reader) (value uint64, err error) {
 	err = binary.Read(r, binary.BigEndian, &value)
 	return
 }
@@ -104,9 +111,6 @@ func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
 	data := int64(first & 0x3f)
 
 	switch enc {
-	case lenEncVal:
-		return data, true, nil
-
 	case len6Bit:
 		return data, false, nil
 
@@ -118,6 +122,29 @@ func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
 		}
 
 		return (data << 8) | int64(next), false, nil
+
+	case lenEncVal:
+		return data, true, nil
+	}
+
+	switch first {
+	case len32Bit:
+		value, err := readUint32BE(r)
+
+		if err != nil {
+			return 0, false, err
+		}
+
+		return int64(value), false, nil
+
+	case len64Bit:
+		value, err := readUint64BE(r)
+
+		if err != nil {
+			return 0, false, err
+		}
+
+		return int64(value), false, nil
 	}
 
 	return 0, false, fmt.Errorf("invalid length encoding %d", enc)
@@ -168,7 +195,31 @@ func readString(r io.Reader) (string, error) {
 		return strconv.FormatInt(int64(value), 10), nil
 
 	case encLZF:
-		// TODO
+		compressedLen, err := readLength(r)
+
+		if err != nil {
+			return "", err
+		}
+
+		decompressedLen, err := readLength(r)
+
+		if err != nil {
+			return "", err
+		}
+
+		compressedBuf := make([]byte, compressedLen)
+
+		if _, err := io.ReadFull(r, compressedBuf); err != nil {
+			return "", err
+		}
+
+		decompressedBuf := make([]byte, decompressedLen)
+
+		if _, err := lzf.Decompress(compressedBuf, decompressedBuf); err != nil {
+			return "", err
+		}
+
+		return string(decompressedBuf), nil
 	}
 
 	return "", fmt.Errorf("invalid string encoding %d", length)
