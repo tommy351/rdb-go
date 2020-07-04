@@ -95,9 +95,13 @@ func (z *zipListIterator) Next() (interface{}, error) {
 func readZipListEntry(r io.Reader) (interface{}, error) {
 	var prevLen uint32
 
-	if b, err := readByte(r); err != nil {
+	b, err := readByte(r)
+
+	if err != nil {
 		return nil, err
-	} else if b == 254 {
+	}
+
+	if b == 254 {
 		i, err := readUint32(r)
 
 		if err != nil {

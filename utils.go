@@ -249,6 +249,10 @@ func readFloat(r io.Reader) (float64, error) {
 
 	s, err := readStringByLength(r, int64(length))
 
+	if err != nil {
+		return 0, err
+	}
+
 	return strconv.ParseFloat(s, 64)
 }
 

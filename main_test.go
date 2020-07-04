@@ -1,4 +1,4 @@
-package rdb
+package rdb_test
 
 import "testing"
 

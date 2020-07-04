@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// nolint: deadcode, varcheck
 const (
 	len6Bit   = 0
 	len14Bit  = 1
@@ -45,9 +46,7 @@ const (
 	encInt16 = 1
 	encInt32 = 2
 	encLZF   = 3
-)
 
-var (
 	magicString = "REDIS"
 
 	minVersion = 1
