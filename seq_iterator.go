@@ -2,8 +2,6 @@ package rdb
 
 import "io"
 
-var _ iterator = (*seqIterator)(nil)
-
 type seqIterator struct {
 	DataKey     DataKey
 	Reader      io.Reader

@@ -26,8 +26,6 @@ type SortedSetData struct {
 	Value []SortedSetValue
 }
 
-var _ valueReader = sortedSetValueReader{}
-
 type sortedSetValueReader struct {
 	Type byte
 }
@@ -59,8 +57,6 @@ func (z sortedSetValueReader) readScore(r io.Reader) (float64, error) {
 	return readFloat(r)
 }
 
-var _ collectionMapper = (*sortedSetMapper)(nil)
-
 type sortedSetMapper struct{}
 
 func (sortedSetMapper) MapHead(head *collectionHead) (interface{}, error) {
@@ -90,8 +86,6 @@ func (sortedSetMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 	return data, nil
 }
-
-var _ valueReader = sortedSetZipListValueReader{}
 
 type sortedSetZipListValueReader struct{}
 

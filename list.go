@@ -19,8 +19,6 @@ type ListData struct {
 	Value []interface{}
 }
 
-var _ collectionMapper = listMapper{}
-
 type listMapper struct{}
 
 func (listMapper) MapHead(head *collectionHead) (interface{}, error) {
@@ -45,8 +43,6 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 		Value:   slice.Value,
 	}, nil
 }
-
-var _ valueReader = listZipListValueReader{}
 
 type listZipListValueReader struct{}
 

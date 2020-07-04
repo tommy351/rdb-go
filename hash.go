@@ -23,8 +23,6 @@ type HashData struct {
 	Value map[string]interface{}
 }
 
-var _ valueReader = hashValueReader{}
-
 type hashValueReader struct{}
 
 func (hashValueReader) ReadValue(r io.Reader) (interface{}, error) {
@@ -45,8 +43,6 @@ func (hashValueReader) ReadValue(r io.Reader) (interface{}, error) {
 		Value: value,
 	}, nil
 }
-
-var _ collectionMapper = (*hashMapper)(nil)
 
 type hashMapper struct{}
 
@@ -78,8 +74,6 @@ func (hashMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 	return data, nil
 }
-
-var _ valueReader = hashZipListValueReader{}
 
 type hashZipListValueReader struct{}
 

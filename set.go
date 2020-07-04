@@ -17,8 +17,6 @@ type SetData struct {
 	Value []interface{}
 }
 
-var _ collectionMapper = setMapper{}
-
 type setMapper struct{}
 
 func (setMapper) MapHead(head *collectionHead) (interface{}, error) {

@@ -6,8 +6,6 @@ import (
 	"io"
 )
 
-var _ iterator = (*zipMapIterator)(nil)
-
 type zipMapIterator struct {
 	DataKey DataKey
 	Reader  io.Reader

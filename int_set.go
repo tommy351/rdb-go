@@ -6,8 +6,6 @@ import (
 	"io"
 )
 
-var _ iterator = (*intSetIterator)(nil)
-
 type intSetIterator struct {
 	DataKey DataKey
 	Reader  io.Reader

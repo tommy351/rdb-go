@@ -321,6 +321,16 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		return p.Next()
+
+	case typeListQuickList:
+		p.iterator = &quickListIterator{
+			DataKey:     key,
+			Reader:      p.reader,
+			ValueReader: listZipListValueReader{},
+			Mapper:      listMapper{},
+		}
+
+		return p.Next()
 	}
 
 	return nil, fmt.Errorf("unsupported data type %d", p.dataType)
