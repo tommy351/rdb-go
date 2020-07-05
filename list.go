@@ -5,11 +5,15 @@ import (
 	"io"
 )
 
+// ListHead contains the key and the length of a list. It is returned when a list
+// is read first time. The length may be incorrect when the list is backed by a
+// quicklist data structure.
 type ListHead struct {
 	DataKey
 	Length int64
 }
 
+// ListEntry is returned when a new list entry is read.
 type ListEntry struct {
 	DataKey
 	Index  int64
@@ -17,6 +21,7 @@ type ListEntry struct {
 	Value  interface{}
 }
 
+// ListData is returned when all entries in a list are all read.
 type ListData struct {
 	DataKey
 	Value []interface{}

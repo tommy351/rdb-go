@@ -86,7 +86,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	if value.Value, err = readStringByLength(z.buf, valueLength); err != nil {
-		return nil, fmt.Errorf("zipmap value read error:%w", err)
+		return nil, fmt.Errorf("zipmap value read error: %w", err)
 	}
 
 	element, err := z.Mapper.MapEntry(&collectionEntry{

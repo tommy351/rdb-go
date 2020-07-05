@@ -5,22 +5,27 @@ import (
 	"io"
 )
 
+// HashValue contains a key-value pair of a hash entry.
 type HashValue struct {
 	Index string
 	Value interface{}
 }
 
+// HashHead contains the key and the length of a hash. It is returned when a hash
+// is read first time.
 type HashHead struct {
 	DataKey
 	Length int64
 }
 
+// HashEntry is returned when a new hash entry is read.
 type HashEntry struct {
 	DataKey
 	HashValue
 	Length int64
 }
 
+// HashData is returned when all entries in a hash are all read.
 type HashData struct {
 	DataKey
 	Value map[string]interface{}

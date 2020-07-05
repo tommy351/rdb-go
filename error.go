@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// ErrInvalidMagicString is returned when a RDB dump file is not started with
+// the magic string "REDIS".
 var ErrInvalidMagicString = errors.New("invalid magic string")
 
 type UnsupportedVersionError struct {

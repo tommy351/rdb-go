@@ -5,16 +5,20 @@ import (
 	"io"
 )
 
+// SortedSetValue contains the value and its score of a sorted set entry.
 type SortedSetValue struct {
 	Value interface{}
 	Score float64
 }
 
+// SortedSetHead contains the key and the length of a sorted set. It is returned
+// when a sorted set is read first time.
 type SortedSetHead struct {
 	DataKey
 	Length int64
 }
 
+// SortedSetEntry is returned when a new sorted set entry is read.
 type SortedSetEntry struct {
 	DataKey
 	SortedSetValue
@@ -22,6 +26,7 @@ type SortedSetEntry struct {
 	Length int64
 }
 
+// SortedSetData is returned when all entries in a sorted set are all read.
 type SortedSetData struct {
 	DataKey
 	Value []SortedSetValue

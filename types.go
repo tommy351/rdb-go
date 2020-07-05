@@ -39,12 +39,14 @@ type DatabaseSize struct {
 	Expire int64
 }
 
+// DataKey contains the database, the key and the expiry of data.
 type DataKey struct {
 	Database int64
 	Key      string
 	Expiry   *time.Time
 }
 
+// StringData contains the key and the value of string data.
 type StringData struct {
 	DataKey
 	Value string
