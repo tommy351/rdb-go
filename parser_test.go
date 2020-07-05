@@ -65,7 +65,7 @@ var _ = Describe("Parser", func() {
 		"keys_with_expiry",
 		"easily_compressible_string_key",
 		"integer_keys",
-		// "non_ascii_values",
+		"non_ascii_values",
 		"uncompressible_string_keys",
 		// List
 		"linkedlist",

@@ -34,6 +34,11 @@ type Aux struct {
 	Value string
 }
 
+type DatabaseSize struct {
+	Size   int64
+	Expire int64
+}
+
 type DataKey struct {
 	Database int64
 	Key      string

@@ -95,41 +95,41 @@ func (p *Parser) Next() (interface{}, error) {
 	dataType, err := readByte(p.reader)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read data type: %w", err)
 	}
 
 	switch dataType {
 	case opCodeExpireTimeMS:
 		if p.expiry, err = readMillisecondsTime(p.reader); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read expire time ms: %w", err)
 		}
 
 		return p.Next()
 
 	case opCodeExpireTime:
 		if p.expiry, err = readSecondsTime(p.reader); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read expire time: %w", err)
 		}
 
 		return p.Next()
 
 	case opCodeIdle:
 		if p.idle, err = readLength(p.reader); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read idle: %w", err)
 		}
 
 		return p.Next()
 
 	case opCodeFreq:
 		if p.freq, err = readByte(p.reader); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read freq: %w", err)
 		}
 
 		return p.Next()
 
 	case opCodeSelectDB:
 		if p.db, err = readLength(p.reader); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read database selector: %w", err)
 		}
 
 		return p.Next()
@@ -138,19 +138,34 @@ func (p *Parser) Next() (interface{}, error) {
 		key, err := readString(p.reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read aux key: %w", err)
 		}
 
 		value, err := readString(p.reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read aux value: %w", err)
 		}
 
 		return &Aux{Key: key, Value: value}, nil
 
 	case opCodeResizeDB:
-		// TODO
+		dbSize, err := readLength(p.reader)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read database size: %w", err)
+		}
+
+		expireSize, err := readLength(p.reader)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read expire size: %w", err)
+		}
+
+		return &DatabaseSize{
+			Size:   dbSize,
+			Expire: expireSize,
+		}, nil
 
 	case opCodeModuleAux:
 		// TODO
@@ -161,7 +176,7 @@ func (p *Parser) Next() (interface{}, error) {
 	}
 
 	if p.key, err = readString(p.reader); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read key: %w", err)
 	}
 
 	p.dataType = &dataType
@@ -172,7 +187,7 @@ func (p *Parser) verifyMagicString() error {
 	buf, err := readBytes(p.reader, int64(len(magicString)))
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read magic string: %w", err)
 	}
 
 	if !bytes.Equal(buf, magicString) {
@@ -186,7 +201,7 @@ func (p *Parser) verifyVersion() error {
 	s, err := readStringByLength(p.reader, 4)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read version: %w", err)
 	}
 
 	version, err := strconv.Atoi(s)
@@ -230,7 +245,7 @@ func (p *Parser) readData() (interface{}, error) {
 		value, err := readString(p.reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read string: %w", err)
 		}
 
 		p.dataType = nil

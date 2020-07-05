@@ -24303,6 +24303,78 @@
  })
 }
 '''
+"Parser non_ascii_values should match the golden file" = '''
+([]interface {}) (len=11) {
+ (*rdb.Aux)({
+  Key: (string) (len=9) "redis-ver",
+  Value: (string) (len=5) "3.2.6"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=10) "redis-bits",
+  Value: (string) (len=2) "64"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=5) "ctime",
+  Value: (string) (len=10) "1486987515"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=8) "used-mem",
+  Value: (string) (len=6) "821752"
+ }),
+ (*rdb.DatabaseSize)({
+  Size: (int64) 6,
+  Expire: (int64) 0
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "int_value",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=3) "123"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=5) "ascii",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=10) "\x00! ~0\n\t\rAb"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=3) "bin",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=14) "\x00$ ~0\u007f\xff\n\xaa\t\x80\rAb"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "printable",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=7) "!+ Ab^~"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=3) "378",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=12) "int_key_name"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=4) "utf8",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=27) "בדיקה𐀏123עברית"
+ })
+}
+'''
 "Parser regular_set should match the golden file" = '''
 ([]interface {}) (len=8) {
  (*rdb.SetHead)({
