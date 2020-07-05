@@ -88,6 +88,7 @@ var _ = Describe("Parser", func() {
 		"zipmap_that_doesnt_compress",
 		// "zipmap_with_big_values",
 	} {
+		name := name
 		Describe(name, func() {
 			testDumpFile(name)
 		})
