@@ -11,6 +11,7 @@ type zipListIterator struct {
 	Reader      io.Reader
 	ValueReader valueReader
 	Mapper      collectionMapper
+	ValueLength int64
 
 	buf        *bytes.Buffer
 	zlBytes    uint32
@@ -43,13 +44,9 @@ func (z *zipListIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to ziplist tail offset: %w", err)
 		}
 
-		length, err := readUint16(z.buf)
-
-		if err != nil {
+		if z.length, err = z.readLength(); err != nil {
 			return nil, fmt.Errorf("failed to read ziplist length: %w", err)
 		}
-
-		z.length = int64(length)
 
 		return z.Mapper.MapHead(&collectionHead{
 			DataKey: z.DataKey,
@@ -58,6 +55,16 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	}
 
 	if z.index == z.length {
+		end, err := readByte(z.buf)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read ziplist end: %w", err)
+		}
+
+		if end != 255 {
+			return nil, ZipListEndError{Value: end}
+		}
+
 		z.buf.Reset()
 
 		z.done = true
@@ -90,6 +97,25 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	z.values = append(z.values, value)
 
 	return element, nil
+}
+
+func (z *zipListIterator) readLength() (int64, error) {
+	value, err := readUint16(z.buf)
+
+	if err != nil {
+		return 0, err
+	}
+
+	length := int64(value)
+
+	if length%z.ValueLength != 0 {
+		return 0, ZipListLengthError{
+			Length:      length,
+			ValueLength: z.ValueLength,
+		}
+	}
+
+	return length / z.ValueLength, nil
 }
 
 func readZipListEntry(r io.Reader) (interface{}, error) {

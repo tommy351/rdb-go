@@ -79,13 +79,13 @@ var _ = Describe("Parser", func() {
 		"intset_64",
 		// Sorted set
 		"regular_sorted_set",
-		// "sorted_set_as_ziplist",
+		"sorted_set_as_ziplist",
 		// Hash
 		"dictionary",
-		// "hash_as_ziplist",
+		"hash_as_ziplist",
 		"zipmap_that_compresses_easily",
 		"zipmap_that_doesnt_compress",
-		// "zipmap_with_big_values",
+		"zipmap_with_big_values",
 	} {
 		name := name
 		Describe(name, func() {

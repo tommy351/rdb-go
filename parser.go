@@ -306,6 +306,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Reader:      p.reader,
 			ValueReader: listZipListValueReader{},
 			Mapper:      listMapper{},
+			ValueLength: 1,
 		}
 
 		return p.Next()
@@ -325,6 +326,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Reader:      p.reader,
 			ValueReader: sortedSetZipListValueReader{},
 			Mapper:      sortedSetMapper{},
+			ValueLength: 2,
 		}
 
 		return p.Next()
@@ -335,6 +337,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Reader:      p.reader,
 			ValueReader: hashZipListValueReader{},
 			Mapper:      hashMapper{},
+			ValueLength: 2,
 		}
 
 		return p.Next()

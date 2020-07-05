@@ -71,3 +71,20 @@ type ConvertError struct {
 func (c ConvertError) Error() string {
 	return fmt.Sprintf("unable to convert value %v to %s", c.Value, c.Type)
 }
+
+type ZipListLengthError struct {
+	Length      int64
+	ValueLength int64
+}
+
+func (z ZipListLengthError) Error() string {
+	return fmt.Sprintf("invalid ziplist length %d, expected to be divisible by %d", z.Length, z.ValueLength)
+}
+
+type ZipListEndError struct {
+	Value byte
+}
+
+func (z ZipListEndError) Error() string {
+	return fmt.Sprintf("invalid ziplist end %d", z.Value)
+}
