@@ -1,7 +1,13 @@
 package rdb_test
 
-import "testing"
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
 
 func Test(t *testing.T) {
-	// TODO
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "goldga")
 }

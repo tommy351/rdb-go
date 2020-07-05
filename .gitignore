@@ -1,3 +1,6 @@
 /.idea/
 /.vscode/
 *.log
+*.coverprofile
+*.test
+/coverage.txt
