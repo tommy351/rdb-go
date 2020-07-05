@@ -74,7 +74,7 @@ func readMillisecondsTime(r io.Reader) (*time.Time, error) {
 		return nil, err
 	}
 
-	return timePtr(time.Unix(0, int64(value)*int64(time.Millisecond))), nil
+	return timePtr(time.Unix(0, int64(value)*int64(time.Millisecond)).UTC()), nil
 }
 
 func readSecondsTime(r io.Reader) (*time.Time, error) {
@@ -84,7 +84,7 @@ func readSecondsTime(r io.Reader) (*time.Time, error) {
 		return nil, err
 	}
 
-	return timePtr(time.Unix(int64(value), 0)), nil
+	return timePtr(time.Unix(int64(value), 0).UTC()), nil
 }
 
 func timePtr(t time.Time) *time.Time {

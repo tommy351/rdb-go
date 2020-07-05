@@ -13256,7 +13256,7 @@
   DataKey: (rdb.DataKey) {
    Database: (int64) 0,
    Key: (string) (len=20) "expires_ms_precision",
-   Expiry: (*time.Time)(2022-12-25 18:11:12.573 +0800 CST)
+   Expiry: (*time.Time)(2022-12-25 10:11:12.573 +0000 UTC)
   },
   Value: (string) (len=27) "2022-12-25 10:11:12.573 UTC"
  })
