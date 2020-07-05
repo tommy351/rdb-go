@@ -24,13 +24,13 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	if z.buf == nil {
-		s, err := readString(z.Reader)
+		buf, err := readStringEncoding(z.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("zipmap string read error: %w", err)
 		}
 
-		z.buf = bytes.NewBufferString(s)
+		z.buf = bytes.NewBuffer(buf)
 
 		length, err := readByte(z.buf)
 

@@ -25,13 +25,13 @@ func (i *intSetIterator) Next() (interface{}, error) {
 	}
 
 	if i.buf == nil {
-		s, err := readString(i.Reader)
+		buf, err := readStringEncoding(i.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
-		i.buf = bytes.NewBufferString(s)
+		i.buf = bytes.NewBuffer(buf)
 
 		if i.encoding, err = readUint32(i.buf); err != nil {
 			return nil, fmt.Errorf("failed to read intset encoding: %w", err)

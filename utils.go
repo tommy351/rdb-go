@@ -166,15 +166,15 @@ func readLength(r io.Reader) (int64, error) {
 	return length, err
 }
 
-func readString(r io.Reader) (string, error) {
+func readStringEncoding(r io.Reader) ([]byte, error) {
 	length, encoded, err := readLengthWithEncoding(r)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if !encoded {
-		return readStringByLength(r, length)
+		return readBytes(r, length)
 	}
 
 	switch length {
@@ -182,58 +182,72 @@ func readString(r io.Reader) (string, error) {
 		value, err := readByte(r)
 
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		return strconv.FormatInt(int64(value), 10), nil
+		return []byte(strconv.FormatInt(int64(value), 10)), nil
 
 	case encInt16:
 		value, err := readInt16(r)
 
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		return strconv.FormatInt(int64(value), 10), nil
+		return []byte(strconv.FormatInt(int64(value), 10)), nil
 
 	case encInt32:
 		value, err := readInt32(r)
 
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		return strconv.FormatInt(int64(value), 10), nil
+		return []byte(strconv.FormatInt(int64(value), 10)), nil
 
 	case encLZF:
-		compressedLen, err := readLength(r)
-
-		if err != nil {
-			return "", err
-		}
-
-		decompressedLen, err := readLength(r)
-
-		if err != nil {
-			return "", err
-		}
-
-		compressedBuf := make([]byte, compressedLen)
-
-		if _, err := io.ReadFull(r, compressedBuf); err != nil {
-			return "", err
-		}
-
-		decompressedBuf := make([]byte, decompressedLen)
-
-		if _, err := lzf.Decompress(compressedBuf, decompressedBuf); err != nil {
-			return "", err
-		}
-
-		return string(decompressedBuf), nil
+		return readLZF(r)
 	}
 
-	return "", StringEncodingError{Encoding: length}
+	return nil, StringEncodingError{Encoding: length}
+}
+
+func readLZF(r io.Reader) ([]byte, error) {
+	compressedLen, err := readLength(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	decompressedLen, err := readLength(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	compressedBuf := make([]byte, compressedLen)
+
+	if _, err := io.ReadFull(r, compressedBuf); err != nil {
+		return nil, err
+	}
+
+	decompressedBuf := make([]byte, decompressedLen)
+
+	if _, err := lzf.Decompress(compressedBuf, decompressedBuf); err != nil {
+		return nil, fmt.Errorf("failed to decompress LZF: %w", err)
+	}
+
+	return decompressedBuf, nil
+}
+
+func readString(r io.Reader) (string, error) {
+	buf, err := readStringEncoding(r)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(buf), nil
 }
 
 func readBinaryDouble(r io.Reader) (value float64, err error) {
