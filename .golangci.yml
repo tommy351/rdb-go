@@ -8,4 +8,5 @@ linters:
     - dogsled
     - funlen
     - wsl
+    - testpackage
   fast: false

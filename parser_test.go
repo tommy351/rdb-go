@@ -1,4 +1,4 @@
-package rdb_test
+package rdb
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/tommy351/goldga"
-	"github.com/tommy351/rdb-go"
 )
 
 var _ = Describe("Parser", func() {
@@ -42,7 +41,7 @@ var _ = Describe("Parser", func() {
 
 		It("should match the golden file", func() {
 			var result []interface{}
-			parser := rdb.NewParser(file)
+			parser := NewParser(file)
 
 			for {
 				data, err := parser.Next()
