@@ -54,12 +54,12 @@ const (
 
 type Parser struct {
 	reader      io.Reader
-	db          int64
 	initialized bool
+	freq        byte
+	db          int64
+	idle        int64
 	expiry      *time.Time
 	dataType    *byte
-	idle        int64
-	freq        byte
 	key         string
 	iterator    iterator
 }

@@ -11,10 +11,10 @@ type intSetIterator struct {
 	Mapper  collectionMapper
 
 	buf      *bytes.Buffer
+	done     bool
 	encoding uint32
 	index    int64
 	length   int64
-	done     bool
 	values   []interface{}
 }
 

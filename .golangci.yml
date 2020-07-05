@@ -8,5 +8,4 @@ linters:
     - dogsled
     - funlen
     - wsl
-    - maligned
   fast: false
