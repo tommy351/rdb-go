@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 )
 
@@ -26,7 +27,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 		s, err := readString(z.Reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("zipmap string read error: %w", err)
 		}
 
 		z.buf = bytes.NewBufferString(s)
@@ -34,7 +35,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 		length, err := readByte(z.buf)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("zipmap length read error: %w", err)
 		}
 
 		z.length = int64(length)
@@ -60,13 +61,13 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("zipmap key length read error: %w", err)
 	}
 
 	var value HashValue
 
 	if value.Index, err = readStringByLength(z.buf, keyLength); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("zipmap key read error: %w", err)
 	}
 
 	valueLength, err := z.readLength()
@@ -76,16 +77,16 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("zipmap value length read error: %w", err)
 	}
 
 	// Read the free byte
 	if _, err := readByte(z.buf); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("zipmap free byte read error: %w", err)
 	}
 
 	if value.Value, err = readStringByLength(z.buf, valueLength); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("zipmap value read error:%w", err)
 	}
 
 	element, err := z.Mapper.MapEntry(&collectionEntry{

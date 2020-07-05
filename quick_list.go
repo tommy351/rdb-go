@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -27,25 +28,37 @@ func (q *quickListIterator) Next() (interface{}, error) {
 		length, err := readLength(q.Reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read quicklist buffer: %w", err)
 		}
 
 		q.initialized = true
 		q.length = length
 
-		return q.Mapper.MapHead(&collectionHead{
+		head, err := q.Mapper.MapHead(&collectionHead{
 			DataKey: q.DataKey,
 			Length:  length,
 		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to map head in quicklist: %w", err)
+		}
+
+		return head, nil
 	}
 
 	if q.index == q.length {
 		q.done = true
 
-		return q.Mapper.MapSlice(&collectionSlice{
+		slice, err := q.Mapper.MapSlice(&collectionSlice{
 			DataKey: q.DataKey,
 			Value:   q.values,
 		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to map slice in quicklist: %w", err)
+		}
+
+		return slice, nil
 	}
 
 	if q.iterator == nil {

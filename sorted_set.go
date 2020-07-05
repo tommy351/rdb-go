@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -34,13 +35,13 @@ func (z sortedSetValueReader) ReadValue(r io.Reader) (interface{}, error) {
 	value, err := readString(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read zset value: %w", err)
 	}
 
 	score, err := z.readScore(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read zset score: %w", err)
 	}
 
 	return SortedSetValue{
@@ -93,19 +94,19 @@ func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error)
 	value, err := readZipListEntry(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read zset value from ziplist: %w", err)
 	}
 
 	score, err := readZipListEntry(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read zset score from ziplist: %w", err)
 	}
 
 	scoreFloat, err := convertToFloat64(score)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to convert zset score to float64: %w", err)
 	}
 
 	return SortedSetValue{

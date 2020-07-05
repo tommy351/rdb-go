@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 )
 
@@ -27,27 +28,33 @@ func (i *intSetIterator) Next() (interface{}, error) {
 		s, err := readString(i.Reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
 		i.buf = bytes.NewBufferString(s)
 
 		if i.encoding, err = readUint32(i.buf); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read intset encoding: %w", err)
 		}
 
 		length, err := readUint32(i.buf)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read intset length: %w", err)
 		}
 
 		i.length = int64(length)
 
-		return i.Mapper.MapHead(&collectionHead{
+		head, err := i.Mapper.MapHead(&collectionHead{
 			DataKey: i.DataKey,
 			Length:  i.length,
 		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to map head in intset: %w", err)
+		}
+
+		return head, nil
 	}
 
 	if i.index == i.length {
@@ -56,10 +63,16 @@ func (i *intSetIterator) Next() (interface{}, error) {
 		i.done = true
 		i.buf = nil
 
-		return i.Mapper.MapSlice(&collectionSlice{
+		slice, err := i.Mapper.MapSlice(&collectionSlice{
 			DataKey: i.DataKey,
 			Value:   i.values,
 		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to map slice in intset: %w", err)
+		}
+
+		return slice, nil
 	}
 
 	value, err := i.readValue()
@@ -68,7 +81,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 		return nil, err
 	}
 
-	element, err := i.Mapper.MapEntry(&collectionEntry{
+	entry, err := i.Mapper.MapEntry(&collectionEntry{
 		DataKey: i.DataKey,
 		Index:   i.index,
 		Length:  i.length,
@@ -76,13 +89,13 @@ func (i *intSetIterator) Next() (interface{}, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to map entry in intset: %w", err)
 	}
 
 	i.index++
 	i.values = append(i.values, value)
 
-	return element, nil
+	return entry, nil
 }
 
 func (i *intSetIterator) readValue() (interface{}, error) {

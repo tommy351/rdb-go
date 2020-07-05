@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"math"
 	"reflect"
@@ -94,7 +95,7 @@ func readStringByLength(r io.Reader, length int64) (string, error) {
 	buf := make([]byte, length)
 
 	if _, err := io.ReadFull(r, buf); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read string by length %d: %w", length, err)
 	}
 
 	return string(buf), nil

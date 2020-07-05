@@ -1,6 +1,9 @@
 package rdb
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 type ListHead struct {
 	DataKey
@@ -47,5 +50,11 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 type listZipListValueReader struct{}
 
 func (listZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
-	return readZipListEntry(r)
+	value, err := readZipListEntry(r)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to read list value from ziplist: %w", err)
+	}
+
+	return value, nil
 }

@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 )
 
@@ -29,23 +30,23 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		s, err := readString(z.Reader)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read ziplist buffer: %w", err)
 		}
 
 		z.buf = bytes.NewBufferString(s)
 
 		if z.zlBytes, err = readUint32(z.buf); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read ziplist zlbytes: %w", err)
 		}
 
 		if z.tailOffset, err = readUint32(z.buf); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to ziplist tail offset: %w", err)
 		}
 
 		length, err := readUint16(z.buf)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read ziplist length: %w", err)
 		}
 
 		z.length = int64(length)
@@ -97,7 +98,7 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 	b, err := readByte(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read first byte of ziplist entry: %w", err)
 	}
 
 	if b == 254 {

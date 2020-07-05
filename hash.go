@@ -1,6 +1,9 @@
 package rdb
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 type HashValue struct {
 	Index string
@@ -29,13 +32,13 @@ func (hashValueReader) ReadValue(r io.Reader) (interface{}, error) {
 	key, err := readString(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read hash key: %w", err)
 	}
 
 	value, err := readString(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read hash value: %w", err)
 	}
 
 	return HashValue{
@@ -81,19 +84,19 @@ func (hashZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
 	key, err := readZipListEntry(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read hash key from ziplist: %w", err)
 	}
 
 	value, err := readZipListEntry(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read hash value from ziplist: %w", err)
 	}
 
 	keyString, err := convertToString(key)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to convert hash key to string: %w", err)
 	}
 
 	return HashValue{
