@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -173,7 +172,7 @@ func (p *Parser) verifyMagicString() error {
 	}
 
 	if s != magicString {
-		return errors.New("invalid magic string")
+		return ErrInvalidMagicString
 	}
 
 	return nil
@@ -193,7 +192,7 @@ func (p *Parser) verifyVersion() error {
 	}
 
 	if version < minVersion || version > maxVersion {
-		return fmt.Errorf("unsupported version %d", version)
+		return UnsupportedVersionError{Version: version}
 	}
 
 	return nil
@@ -332,5 +331,5 @@ func (p *Parser) readData() (interface{}, error) {
 		return p.Next()
 	}
 
-	return nil, fmt.Errorf("unsupported data type %d", p.dataType)
+	return nil, UnsupportedDataTypeError{DataType: *p.dataType}
 }

@@ -9,5 +9,4 @@ linters:
     - funlen
     - wsl
     - maligned
-    - goerr113
   fast: false

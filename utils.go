@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 	"math"
 	"reflect"
@@ -148,7 +147,7 @@ func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
 		return int64(value), false, nil
 	}
 
-	return 0, false, fmt.Errorf("invalid length encoding %d", enc)
+	return 0, false, LengthEncodingError{Encoding: enc}
 }
 
 func readLength(r io.Reader) (int64, error) {
@@ -223,7 +222,7 @@ func readString(r io.Reader) (string, error) {
 		return string(decompressedBuf), nil
 	}
 
-	return "", fmt.Errorf("invalid string encoding %d", length)
+	return "", StringEncodingError{Encoding: length}
 }
 
 func readBinaryDouble(r io.Reader) (value float64, err error) {
@@ -280,7 +279,7 @@ func convertToFloat64(value interface{}) (float64, error) {
 		return strconv.ParseFloat(v.String(), 64)
 	}
 
-	return 0, fmt.Errorf("unable to convert value %v to float64", value)
+	return 0, ConvertError{Value: value, Type: "float64"}
 }
 
 func convertToString(value interface{}) (string, error) {
@@ -297,5 +296,5 @@ func convertToString(value interface{}) (string, error) {
 		return strconv.FormatFloat(v.Float(), 'f', -1, 64), nil
 	}
 
-	return "", fmt.Errorf("unable to convert value %v to string", value)
+	return "", ConvertError{Value: value, Type: "string"}
 }

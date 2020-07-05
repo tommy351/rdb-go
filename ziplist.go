@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 )
 
@@ -162,5 +161,5 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 		return header - 241, nil
 	}
 
-	return nil, fmt.Errorf("invalid ziplist entry header %d", header)
+	return nil, ZipListHeaderError{Header: header}
 }

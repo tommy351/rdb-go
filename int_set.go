@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 )
 
@@ -96,5 +95,5 @@ func (i *intSetIterator) readValue() (interface{}, error) {
 		return readInt16(i.buf)
 	}
 
-	return nil, fmt.Errorf("invalid intset encoding %d", i.encoding)
+	return nil, IntSetEncodingError{Encoding: i.encoding}
 }

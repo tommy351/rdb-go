@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 )
 
@@ -73,7 +72,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	valueLength, err := z.readLength()
 
 	if err == io.EOF {
-		return nil, fmt.Errorf("unexpected end of zip map for key %q", value.Index)
+		return nil, UnexpectedZipMapEndError{Key: value.Index}
 	}
 
 	if err != nil {
