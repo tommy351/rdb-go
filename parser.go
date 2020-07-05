@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -46,10 +47,13 @@ const (
 	encInt32 = 2
 	encLZF   = 3
 
-	magicString = "REDIS"
-
 	minVersion = 1
 	maxVersion = 9
+)
+
+// nolint: gochecknoglobals
+var (
+	magicString = []byte("REDIS")
 )
 
 type Parser struct {
@@ -165,13 +169,13 @@ func (p *Parser) Next() (interface{}, error) {
 }
 
 func (p *Parser) verifyMagicString() error {
-	s, err := readStringByLength(p.reader, int64(len(magicString)))
+	buf, err := readBytes(p.reader, int64(len(magicString)))
 
 	if err != nil {
 		return err
 	}
 
-	if s != magicString {
+	if !bytes.Equal(buf, magicString) {
 		return ErrInvalidMagicString
 	}
 

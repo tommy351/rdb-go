@@ -91,11 +91,21 @@ func timePtr(t time.Time) *time.Time {
 	return &t
 }
 
-func readStringByLength(r io.Reader, length int64) (string, error) {
+func readBytes(r io.Reader, length int64) ([]byte, error) {
 	buf := make([]byte, length)
 
 	if _, err := io.ReadFull(r, buf); err != nil {
-		return "", fmt.Errorf("failed to read string by length %d: %w", length, err)
+		return nil, fmt.Errorf("failed to read bytes by length %d: %w", length, err)
+	}
+
+	return buf, nil
+}
+
+func readStringByLength(r io.Reader, length int64) (string, error) {
+	buf, err := readBytes(r, length)
+
+	if err != nil {
+		return "", err
 	}
 
 	return string(buf), nil
