@@ -6,9 +6,46 @@ Parse Redis RDB dump files. This library is based on [redis-rdb-tools](https://g
 
 ## Install
 
+This library can be used as a package.
+
 ```sh
 go get github.com/tommy351/rdb-go
 ```
+
+Or as a command line tool.
+
+```sh
+go get github.com/tommy351/rdb-go/cmd/rdb
+rdb path/to/dump.rdb
+```
+
+## Usage
+
+Use `Parser` to iterate over a RDB dump file.
+
+```go
+import (
+  rdb "github.com/tommy351/rdb-go"
+)
+
+parser := NewParser(file)
+
+for {
+  data, err := parser.Next()
+
+  if err == io.EOF {
+    break
+  }
+
+  if err != nil {
+    panic(err)
+  }
+
+  // ...
+}
+```
+
+See examples in the [documentation](https://pkg.go.dev/github.com/tommy351/rdb-go) or [cmd/rdb/main.go](cmd/rdb/main.go) for more details.
 
 ## License
 
