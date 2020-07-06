@@ -46,6 +46,15 @@ type DataKey struct {
 	Expiry   *time.Time
 }
 
+// Expired returns true if the key is expired.
+func (d DataKey) Expired() bool {
+	if d.Expiry == nil {
+		return false
+	}
+
+	return time.Now().After(*d.Expiry)
+}
+
 // StringData contains the key and the value of string data.
 type StringData struct {
 	DataKey
