@@ -179,7 +179,7 @@ func readStringEncoding(r io.Reader) ([]byte, error) {
 
 	switch length {
 	case encInt8:
-		value, err := readByte(r)
+		value, err := readInt8(r)
 
 		if err != nil {
 			return nil, err

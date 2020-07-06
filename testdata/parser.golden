@@ -13125,7 +13125,7 @@
  (*rdb.StringData)({
   DataKey: (rdb.DataKey) {
    Database: (int64) 0,
-   Key: (string) (len=3) "133",
+   Key: (string) (len=4) "-123",
    Expiry: (*time.Time)(<nil>)
   },
   Value: (string) (len=22) "Negative 8 bit integer"
