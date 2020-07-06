@@ -33501,7 +33501,7 @@
   },
   Index: (int64) 21,
   Length: (int64) 24,
-  Value: (int) 16711693
+  Value: (int) -65523
  }),
  (*rdb.ListEntry)({
   DataKey: (rdb.DataKey) {
@@ -33551,7 +33551,7 @@
    (int16) 16380,
    (int16) -16000,
    (int) 65535,
-   (int) 16711693,
+   (int) -65523,
    (int) 4194304,
    (int64) 9223372036854775807
   }

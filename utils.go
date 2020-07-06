@@ -287,7 +287,7 @@ func read24BitSignedNumber(r io.Reader) (int, error) {
 		return 0, err
 	}
 
-	return int(binary.LittleEndian.Uint32(append([]byte{0}, buf...))) >> 8, nil
+	return int(int32(buf[2])<<24|int32(buf[1])<<16|int32(buf[0])<<8) >> 8, nil
 }
 
 func convertToFloat64(value interface{}) (float64, error) {

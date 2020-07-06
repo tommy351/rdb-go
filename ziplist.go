@@ -147,11 +147,10 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 		return nil, err
 	}
 
-	switch {
-	case (header >> 6) == 0:
+	switch header >> 6 {
+	case 0:
 		return readStringByLength(r, int64(header&0x3f))
-
-	case (header >> 6) == 1:
+	case 1:
 		next, err := readByte(r)
 
 		if err != nil {
@@ -159,8 +158,7 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 		}
 
 		return readStringByLength(r, int64(header&0x3f)<<8|int64(next))
-
-	case (header >> 6) == 2:
+	case 2:
 		length, err := readUint32BE(r)
 
 		if err != nil {
@@ -168,23 +166,25 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 		}
 
 		return readStringByLength(r, int64(length))
+	}
 
-	case (header >> 4) == 12:
+	switch header >> 4 {
+	case 12:
 		return readInt16(r)
-
-	case (header >> 4) == 13:
+	case 13:
 		return readInt32(r)
-
-	case (header >> 4) == 14:
+	case 14:
 		return readInt64(r)
+	}
 
-	case header == 240:
+	switch header {
+	case 240:
 		return read24BitSignedNumber(r)
-
-	case header == 254:
+	case 254:
 		return readInt8(r)
+	}
 
-	case header >= 241 && header <= 253:
+	if header >= 241 && header <= 253 {
 		return header - 241, nil
 	}
 
