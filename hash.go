@@ -3,6 +3,8 @@ package rdb
 import (
 	"fmt"
 	"io"
+
+	"github.com/tommy351/rdb-go/internal/convert"
 )
 
 // HashValue contains a key-value pair of a hash entry.
@@ -98,7 +100,7 @@ func (hashZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
 		return nil, fmt.Errorf("failed to read hash value from ziplist: %w", err)
 	}
 
-	keyString, err := convertToString(key)
+	keyString, err := convert.String(key)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert hash key to string: %w", err)

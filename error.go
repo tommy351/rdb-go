@@ -65,15 +65,6 @@ func (z ZipListHeaderError) Error() string {
 	return fmt.Sprintf("invalid ziplist entry header %d", z.Header)
 }
 
-type ConvertError struct {
-	Value interface{}
-	Type  string
-}
-
-func (c ConvertError) Error() string {
-	return fmt.Sprintf("unable to convert value %v to %s", c.Value, c.Type)
-}
-
 type ZipListLengthError struct {
 	Length      int64
 	ValueLength int64

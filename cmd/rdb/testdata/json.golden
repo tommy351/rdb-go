@@ -16,7 +16,7 @@
 [{"regular_set":["beta","delta","alpha","phi","gamma","kappa"]}]
 '''
 "JSONPrinter sorted_set_as_ziplist should match the golden file" = '''
-[{"sorted_set_as_ziplist":["8b6ba6718a786daefa69438148361901","cb7a24bb7528f934b841b34c3a73e0c7","523af537946b79c4f8369ed39ba78605"]}]
+[{"sorted_set_as_ziplist":{"523af537946b79c4f8369ed39ba78605":3.423,"8b6ba6718a786daefa69438148361901":1,"cb7a24bb7528f934b841b34c3a73e0c7":2.37}}]
 '''
 "JSONPrinter ziplist_that_doesnt_compress should match the golden file" = '''
 [{"ziplist_doesnt_compress":["aj2410","cc953a17a8e096e76a44169ad3f9ac87c5f8248a403274416179aa9fbd852344"]}]

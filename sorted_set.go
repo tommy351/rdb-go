@@ -3,6 +3,8 @@ package rdb
 import (
 	"fmt"
 	"io"
+
+	"github.com/tommy351/rdb-go/internal/convert"
 )
 
 // SortedSetValue contains the value and its score of a sorted set entry.
@@ -108,7 +110,7 @@ func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error)
 		return nil, fmt.Errorf("failed to read zset score from ziplist: %w", err)
 	}
 
-	scoreFloat, err := convertToFloat64(score)
+	scoreFloat, err := convert.Float64(score)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert zset score to float64: %w", err)

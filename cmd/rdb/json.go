@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/tommy351/rdb-go"
+	"github.com/tommy351/rdb-go/internal/convert"
 )
 
 type JSONPrinter struct {
@@ -122,6 +123,43 @@ func (j *JSONPrinter) printArrayEnd() error {
 	return j.print("]")
 }
 
+func (j *JSONPrinter) printObjectHead(key *rdb.DataKey) error {
+	j.entryIndex = 0
+
+	if err := j.printKey(key); err != nil {
+		return err
+	}
+
+	return j.print("{")
+}
+
+func (j *JSONPrinter) printObjectEntry(key string, value interface{}) error {
+	if j.entryIndex > 0 {
+		if err := j.print(","); err != nil {
+			return err
+		}
+	}
+
+	if err := j.printValue(key); err != nil {
+		return err
+	}
+
+	if err := j.print(":"); err != nil {
+		return err
+	}
+
+	if err := j.printValue(value); err != nil {
+		return err
+	}
+
+	j.entryIndex++
+	return nil
+}
+
+func (j *JSONPrinter) printObjectEnd() error {
+	return j.print("}")
+}
+
 func (j *JSONPrinter) ListHead(head *rdb.ListHead) error {
 	return j.printArrayHead(&head.DataKey)
 }
@@ -147,50 +185,31 @@ func (j *JSONPrinter) SetData(data *rdb.SetData) error {
 }
 
 func (j *JSONPrinter) SortedSetHead(head *rdb.SortedSetHead) error {
-	return j.printArrayHead(&head.DataKey)
+	return j.printObjectHead(&head.DataKey)
 }
 
 func (j *JSONPrinter) SortedSetEntry(entry *rdb.SortedSetEntry) error {
-	return j.printArrayEntry(entry.Value)
+	value, err := convert.String(entry.Value)
+
+	if err != nil {
+		return err
+	}
+
+	return j.printObjectEntry(value, entry.Score)
 }
 
 func (j *JSONPrinter) SortedSetData(data *rdb.SortedSetData) error {
-	return j.printArrayEnd()
+	return j.printObjectEnd()
 }
 
 func (j *JSONPrinter) HashHead(head *rdb.HashHead) error {
-	j.entryIndex = 0
-
-	if err := j.printKey(&head.DataKey); err != nil {
-		return err
-	}
-
-	return j.print("{")
+	return j.printObjectHead(&head.DataKey)
 }
 
 func (j *JSONPrinter) HashEntry(entry *rdb.HashEntry) error {
-	if j.entryIndex > 0 {
-		if err := j.print(","); err != nil {
-			return err
-		}
-	}
-
-	if err := j.printValue(entry.Index); err != nil {
-		return err
-	}
-
-	if err := j.print(":"); err != nil {
-		return err
-	}
-
-	if err := j.printValue(entry.Value); err != nil {
-		return err
-	}
-
-	j.entryIndex++
-	return nil
+	return j.printObjectEntry(entry.Index, entry.Value)
 }
 
 func (j *JSONPrinter) HashData(data *rdb.HashData) error {
-	return j.print("}")
+	return j.printObjectEnd()
 }
