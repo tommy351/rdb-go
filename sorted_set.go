@@ -9,7 +9,7 @@ import (
 
 // SortedSetValue contains the value and its score of a sorted set entry.
 type SortedSetValue struct {
-	Value interface{}
+	Value string
 	Score float64
 }
 
@@ -111,6 +111,12 @@ func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error)
 		return nil, fmt.Errorf("failed to read zset score from ziplist: %w", err)
 	}
 
+	valueString, err := convert.String(value)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert zset value to string: %w", err)
+	}
+
 	scoreFloat, err := convert.Float64(score)
 
 	if err != nil {
@@ -118,7 +124,7 @@ func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error)
 	}
 
 	return SortedSetValue{
-		Value: value,
+		Value: valueString,
 		Score: scoreFloat,
 	}, nil
 }

@@ -3,6 +3,8 @@ package rdb
 import (
 	"fmt"
 	"io"
+
+	"github.com/tommy351/rdb-go/internal/convert"
 )
 
 // ListHead contains the key and the length of a list. It is returned when a list
@@ -18,13 +20,13 @@ type ListEntry struct {
 	DataKey
 	Index  int64
 	Length int64
-	Value  interface{}
+	Value  string
 }
 
 // ListData is returned when all entries in a list are all read.
 type ListData struct {
 	DataKey
-	Value []interface{}
+	Value []string
 }
 
 type listMapper struct{}
@@ -37,19 +39,37 @@ func (listMapper) MapHead(head *collectionHead) (interface{}, error) {
 }
 
 func (listMapper) MapEntry(element *collectionEntry) (interface{}, error) {
+	value, err := convert.String(element.Value)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert list value to string: %w", err)
+	}
+
 	return &ListEntry{
 		DataKey: element.DataKey,
 		Index:   element.Index,
 		Length:  element.Length,
-		Value:   element.Value,
+		Value:   value,
 	}, nil
 }
 
 func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
-	return &ListData{
+	data := &ListData{
 		DataKey: slice.DataKey,
-		Value:   slice.Value,
-	}, nil
+		Value:   make([]string, len(slice.Value)),
+	}
+
+	for i, v := range slice.Value {
+		value, err := convert.String(v)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert list value to string: %w", err)
+		}
+
+		data.Value[i] = value
+	}
+
+	return data, nil
 }
 
 type listZipListValueReader struct{}

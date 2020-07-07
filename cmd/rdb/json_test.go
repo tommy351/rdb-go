@@ -41,8 +41,10 @@ var _ = Describe("JSONPrinter", func() {
 		"multiple_databases",
 		// List
 		"ziplist_that_doesnt_compress",
+		"ziplist_with_integers",
 		// Set
 		"regular_set",
+		"intset_16",
 		// Sorted Set
 		"sorted_set_as_ziplist",
 		// Hash

@@ -6,6 +6,9 @@
 "JSONPrinter hash_as_ziplist should match the golden file" = '''
 [{"zipmap_compresses_easily":{"a":"aa","aa":"aaaa","aaaaa":"aaaaaaaaaaaaaa"}}]
 '''
+"JSONPrinter intset_16 should match the golden file" = '''
+[{"intset_16":["32764","32765","32766"]}]
+'''
 "JSONPrinter keys_with_expiry should match the golden file" = '''
 [{"expires_ms_precision":"2022-12-25 10:11:12.573 UTC"}]
 '''
@@ -20,4 +23,7 @@
 '''
 "JSONPrinter ziplist_that_doesnt_compress should match the golden file" = '''
 [{"ziplist_doesnt_compress":["aj2410","cc953a17a8e096e76a44169ad3f9ac87c5f8248a403274416179aa9fbd852344"]}]
+'''
+"JSONPrinter ziplist_with_integers should match the golden file" = '''
+[{"ziplist_with_integers":["0","1","2","3","4","5","6","7","8","9","10","11","12","-2","13","25","-61","63","16380","-16000","65535","-65523","4194304","9223372036854775807"]}]
 '''

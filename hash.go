@@ -10,7 +10,7 @@ import (
 // HashValue contains a key-value pair of a hash entry.
 type HashValue struct {
 	Index string
-	Value interface{}
+	Value string
 }
 
 // HashHead contains the key and the length of a hash. It is returned when a hash
@@ -30,7 +30,7 @@ type HashEntry struct {
 // HashData is returned when all entries in a hash are all read.
 type HashData struct {
 	DataKey
-	Value map[string]interface{}
+	Value map[string]string
 }
 
 type hashValueReader struct{}
@@ -74,7 +74,7 @@ func (hashMapper) MapEntry(element *collectionEntry) (interface{}, error) {
 func (hashMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 	data := &HashData{
 		DataKey: slice.DataKey,
-		Value:   make(map[string]interface{}, len(slice.Value)),
+		Value:   make(map[string]string, len(slice.Value)),
 	}
 
 	for _, v := range slice.Value {
@@ -106,8 +106,14 @@ func (hashZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
 		return nil, fmt.Errorf("failed to convert hash key to string: %w", err)
 	}
 
+	valueString, err := convert.String(value)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert hash value to string: %w", err)
+	}
+
 	return HashValue{
 		Index: keyString,
-		Value: value,
+		Value: valueString,
 	}, nil
 }
