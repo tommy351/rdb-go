@@ -18,9 +18,9 @@ var (
 	rootCmd = &cobra.Command{
 		Use:  "rdb [path]",
 		Args: cobra.MaximumNArgs(1),
-		Example: formatExamples(map[string]string{
-			"Parse a RDB dump file.": "rdb path/to/dump.rdb",
-			"Read RDB from stdin.":   "cat file | rdb",
+		Example: formatExamples([][]string{
+			{"Parse a RDB dump file.", "rdb path/to/dump.rdb"},
+			{"Read RDB from stdin.", "cat file | rdb"},
 		}),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var printer Printer
@@ -57,12 +57,12 @@ var (
 	}
 )
 
-func formatExamples(examples map[string]string) string {
-	lines := make([]string, 0, len(examples))
+func formatExamples(examples [][]string) string {
+	lines := make([]string, len(examples))
 	indent := "  "
 
-	for title, content := range examples {
-		lines = append(lines, indent+"# "+title+"\n"+indent+content)
+	for i, v := range examples {
+		lines[i] = indent + "# " + v[0] + "\n" + indent + v[1]
 	}
 
 	return strings.Join(lines, "\n\n")
