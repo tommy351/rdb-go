@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,7 +25,10 @@ var _ = Describe("JSONPrinter", func() {
 		BeforeEach(func() {
 			buf.Reset()
 			printer := NewJSONPrinter(&buf)
-			Expect(printParserData(fmt.Sprintf("../../fixtures/%s.rdb", name), printer)).To(Succeed())
+			file, err := os.Open(fmt.Sprintf("../../fixtures/%s.rdb", name))
+			Expect(err).NotTo(HaveOccurred())
+			defer file.Close()
+			Expect(printParserData(file, printer)).To(Succeed())
 		})
 
 		It("should match the golden file", func() {

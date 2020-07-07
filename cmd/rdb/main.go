@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tommy351/rdb-go"
@@ -16,7 +17,11 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:  "rdb [path]",
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
+		Example: formatExamples(map[string]string{
+			"Parse a RDB dump file.": "rdb path/to/dump.rdb",
+			"Read RDB from stdin.":   "cat file | rdb",
+		}),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var printer Printer
 
@@ -31,10 +36,37 @@ var (
 				return fmt.Errorf("unsupported format %q", outputFormat)
 			}
 
-			return printParserData(args[0], printer)
+			var reader io.Reader
+
+			if len(args) > 0 {
+				file, err := os.Open(args[0])
+
+				if err != nil {
+					return err
+				}
+
+				defer file.Close()
+
+				reader = file
+			} else {
+				reader = bufio.NewReader(os.Stdin)
+			}
+
+			return printParserData(reader, printer)
 		},
 	}
 )
+
+func formatExamples(examples map[string]string) string {
+	lines := make([]string, 0, len(examples))
+	indent := "  "
+
+	for title, content := range examples {
+		lines = append(lines, indent+"# "+title+"\n"+indent+content)
+	}
+
+	return strings.Join(lines, "\n\n")
+}
 
 func main() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "json", "output format")
@@ -45,16 +77,8 @@ func main() {
 	}
 }
 
-func printParserData(path string, printer Printer) error {
-	file, err := os.Open(path)
-
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	parser := rdb.NewParser(file)
+func printParserData(reader io.Reader, printer Printer) error {
+	parser := rdb.NewParser(reader)
 
 	if err := printer.Start(); err != nil {
 		return err
