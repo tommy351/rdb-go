@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"strconv"
 	"time"
@@ -288,4 +289,64 @@ func read24BitSignedNumber(r io.Reader) (int, error) {
 	}
 
 	return int(int32(buf[2])<<24|int32(buf[1])<<16|int32(buf[0])<<8) >> 8, nil
+}
+
+func skipBytes(r io.Reader, length int64) error {
+	_, err := io.CopyN(ioutil.Discard, r, length)
+	return fmt.Errorf("failed to skip %d bytes: %w", length, err)
+}
+
+func skipString(r io.Reader) error {
+	length, encoded, err := readLengthWithEncoding(r)
+
+	if err != nil {
+		return fmt.Errorf("failed to read length: %w", err)
+	}
+
+	if !encoded {
+		return skipBytes(r, length)
+	}
+
+	switch length {
+	case encInt8:
+		return skipBytes(r, 1)
+	case encInt16:
+		return skipBytes(r, 2)
+	case encInt32:
+		return skipBytes(r, 4)
+	case encLZF:
+		// Read compressed length
+		cLength, err := readLength(r)
+
+		if err != nil {
+			return err
+		}
+
+		// Read decompressed length
+		if _, err := readLength(r); err != nil {
+			return err
+		}
+
+		return skipBytes(r, cLength)
+	}
+
+	return StringEncodingError{Encoding: length}
+}
+
+func skipBinaryDouble(r io.Reader) error {
+	return skipBytes(r, 8)
+}
+
+func skipFloat(r io.Reader) error {
+	length, err := readByte(r)
+
+	if err != nil {
+		return err
+	}
+
+	if length < 253 {
+		return skipBytes(r, int64(length))
+	}
+
+	return nil
 }

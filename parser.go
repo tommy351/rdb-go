@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// nolint: deadcode, varcheck
 const (
 	len6Bit   = 0
 	len14Bit  = 1
@@ -58,6 +57,8 @@ var (
 
 // Parser parses a RDB dump file.
 type Parser struct {
+	KeyFilter func(key *DataKey) bool
+
 	reader      io.Reader
 	initialized bool
 	freq        byte
@@ -232,6 +233,22 @@ func (p *Parser) verifyVersion() error {
 }
 
 func (p *Parser) readData() (interface{}, error) {
+	key := DataKey{
+		Key:      p.key,
+		Expiry:   p.expiry,
+		Database: p.db,
+	}
+
+	if p.KeyFilter != nil && !p.KeyFilter(&key) {
+		if err := p.skipData(); err != nil {
+			return nil, err
+		}
+
+		p.dataType = nil
+		p.iterator = nil
+		return p.Next()
+	}
+
 	if p.iterator != nil {
 		value, err := p.iterator.Next()
 
@@ -246,12 +263,6 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		return value, nil
-	}
-
-	key := DataKey{
-		Key:      p.key,
-		Expiry:   p.expiry,
-		Database: p.db,
 	}
 
 	switch *p.dataType {
@@ -368,4 +379,73 @@ func (p *Parser) readData() (interface{}, error) {
 	}
 
 	return nil, UnsupportedDataTypeError{DataType: *p.dataType}
+}
+
+func (p *Parser) skipData() error {
+	switch *p.dataType {
+	case typeString, typeHashZipMap, typeListZipList, typeSetIntSet, typeZSetZipList, typeHashZipList, typeListQuickList:
+		return p.skipStrings(1)
+
+	case typeList, typeSet:
+		length, err := readLength(p.reader)
+
+		if err != nil {
+			return fmt.Errorf("failed to read list length: %w", err)
+		}
+
+		return p.skipStrings(length)
+
+	case typeZSet, typeZSet2:
+		length, err := readLength(p.reader)
+
+		if err != nil {
+			return fmt.Errorf("failed to read zset length: %w", err)
+		}
+
+		for i := int64(0); i < length; i++ {
+			if err := skipString(p.reader); err != nil {
+				return err
+			}
+
+			if *p.dataType == typeZSet2 {
+				err = skipBinaryDouble(p.reader)
+			} else {
+				err = skipFloat(p.reader)
+			}
+
+			if err != nil {
+				return err
+			}
+		}
+
+	case typeHash:
+		length, err := readLength(p.reader)
+
+		if err != nil {
+			return fmt.Errorf("failed to read hash length: %w", err)
+		}
+
+		return p.skipStrings(length * 2)
+
+	case typeModule:
+		// TODO
+
+	case typeModule2:
+		// TODO
+
+	case typeStreamListPacks:
+		// TODO
+	}
+
+	return nil
+}
+
+func (p *Parser) skipStrings(n int64) error {
+	for i := int64(0); i < n; i++ {
+		if err := skipString(p.reader); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
