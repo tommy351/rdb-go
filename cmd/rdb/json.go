@@ -189,13 +189,7 @@ func (j *JSONPrinter) SortedSetHead(head *rdb.SortedSetHead) error {
 }
 
 func (j *JSONPrinter) SortedSetEntry(entry *rdb.SortedSetEntry) error {
-	value, err := convert.String(entry.Value)
-
-	if err != nil {
-		return err
-	}
-
-	return j.printObjectEntry(value, entry.Score)
+	return j.printObjectEntry(entry.Value, entry.Score)
 }
 
 func (j *JSONPrinter) SortedSetData(data *rdb.SortedSetData) error {
