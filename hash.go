@@ -74,7 +74,7 @@ func (hashMapper) MapEntry(element *collectionEntry) (interface{}, error) {
 func (hashMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 	data := &HashData{
 		DataKey: slice.DataKey,
-		Value:   map[string]interface{}{},
+		Value:   make(map[string]interface{}, len(slice.Value)),
 	}
 
 	for _, v := range slice.Value {

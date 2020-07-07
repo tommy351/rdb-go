@@ -32,6 +32,7 @@ func (s *seqIterator) Next() (interface{}, error) {
 
 		s.initialized = true
 		s.length = length
+		s.values = make([]interface{}, length)
 
 		head, err := s.Mapper.MapHead(&collectionHead{
 			DataKey: s.DataKey,
@@ -77,8 +78,8 @@ func (s *seqIterator) Next() (interface{}, error) {
 		return nil, fmt.Errorf("failed to map entry in seq: %w", err)
 	}
 
+	s.values[s.index] = value
 	s.index++
-	s.values = append(s.values, value)
 
 	return entry, nil
 }

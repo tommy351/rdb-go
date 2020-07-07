@@ -86,10 +86,11 @@ func (sortedSetMapper) MapEntry(element *collectionEntry) (interface{}, error) {
 func (sortedSetMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 	data := &SortedSetData{
 		DataKey: slice.DataKey,
+		Value:   make([]SortedSetValue, len(slice.Value)),
 	}
 
-	for _, v := range slice.Value {
-		data.Value = append(data.Value, v.(SortedSetValue))
+	for i, v := range slice.Value {
+		data.Value[i] = v.(SortedSetValue)
 	}
 
 	return data, nil
