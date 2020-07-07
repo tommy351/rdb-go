@@ -35,7 +35,7 @@ func (j *JSONPrinter) printValue(value interface{}) error {
 		return err
 	}
 
-	return j.print(string(buf))
+	return j.print(convert.BytesToString(buf))
 }
 
 func (j *JSONPrinter) printKey(key *rdb.DataKey) error {

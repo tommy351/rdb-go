@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/tommy351/rdb-go/internal/convert"
 	lzf "github.com/zhuyie/golzf"
 )
 
@@ -107,7 +108,7 @@ func readStringByLength(r io.Reader, length int64) (string, error) {
 		return "", err
 	}
 
-	return string(buf), nil
+	return convert.BytesToString(buf), nil
 }
 
 func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
@@ -246,7 +247,7 @@ func readString(r io.Reader) (string, error) {
 		return "", err
 	}
 
-	return string(buf), nil
+	return convert.BytesToString(buf), nil
 }
 
 func readBinaryDouble(r io.Reader) (value float64, err error) {

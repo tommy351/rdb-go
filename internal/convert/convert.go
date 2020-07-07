@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"unsafe"
 )
 
 type Error struct {
@@ -47,4 +48,9 @@ func String(value interface{}) (string, error) {
 	}
 
 	return "", Error{Value: value, Type: "string"}
+}
+
+func BytesToString(buf []byte) string {
+	// From strings.Builder.String()
+	return *(*string)(unsafe.Pointer(&buf))
 }
