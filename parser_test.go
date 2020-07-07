@@ -8,6 +8,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 	"github.com/tommy351/goldga"
 )
 
@@ -92,4 +93,59 @@ var _ = Describe("Parser", func() {
 			testDumpFile(name)
 		})
 	}
+
+	Describe("KeyFilter", func() {
+		var file *os.File
+
+		BeforeEach(func() {
+			var err error
+			file, err = os.Open("fixtures/parser_filters.rdb")
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		AfterEach(func() {
+			Expect(file.Close()).To(Succeed())
+		})
+
+		testKeyFilter := func(excludedKey string) {
+			parser := NewParser(file)
+
+			parser.KeyFilter = func(key *DataKey) bool {
+				return key.Key != excludedKey
+			}
+
+			for {
+				data, err := parser.Next()
+
+				if err == io.EOF {
+					break
+				}
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(data).To(PointTo(MatchFields(IgnoreExtras, Fields{
+					"DataKey": MatchFields(IgnoreExtras, Fields{
+						"Key": Not(Equal(excludedKey)),
+					}),
+				})))
+			}
+		}
+
+		for _, name := range []string{
+			// String
+			"k1",
+			// List
+			"l10",
+			// Set
+			"set1",
+			// Hash
+			"h1",
+			// Sorted Set
+			"z1",
+		} {
+			name := name
+			It(name, func() {
+				testKeyFilter(name)
+			})
+		}
+	})
 })

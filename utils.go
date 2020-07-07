@@ -292,8 +292,11 @@ func read24BitSignedNumber(r io.Reader) (int, error) {
 }
 
 func skipBytes(r io.Reader, length int64) error {
-	_, err := io.CopyN(ioutil.Discard, r, length)
-	return fmt.Errorf("failed to skip %d bytes: %w", length, err)
+	if _, err := io.CopyN(ioutil.Discard, r, length); err != nil {
+		return fmt.Errorf("failed to skip %d bytes: %w", length, err)
+	}
+
+	return nil
 }
 
 func skipString(r io.Reader) error {
