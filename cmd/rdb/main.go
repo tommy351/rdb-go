@@ -22,6 +22,7 @@ var (
 			{"Parse a RDB dump file.", "rdb path/to/dump.rdb"},
 			{"Read RDB from stdin.", "cat file | rdb"},
 		}),
+		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var printer Printer
 
@@ -72,7 +73,6 @@ func main() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "json", "output format")
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 }
