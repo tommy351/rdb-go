@@ -106,109 +106,24 @@ func (p *Parser) Next() (interface{}, error) {
 	}
 
 	for {
-		if p.dataType != nil {
-			data, err := p.readData()
+		data, err := p.nextLoop()
 
+		if err != nil {
 			if errors.Is(err, errContinueLoop) {
 				continue
 			}
 
-			if err != nil {
-				return nil, err
+			if err == io.EOF {
+				break
 			}
 
-			return data, nil
+			return nil, err
 		}
 
-		dataType, err := readByte(p.reader)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to read data type: %w", err)
-		}
-
-		switch dataType {
-		case opCodeExpireTimeMS:
-			if p.expiry, err = readMillisecondsTime(p.reader); err != nil {
-				return nil, fmt.Errorf("failed to read expire time ms: %w", err)
-			}
-
-			continue
-
-		case opCodeExpireTime:
-			if p.expiry, err = readSecondsTime(p.reader); err != nil {
-				return nil, fmt.Errorf("failed to read expire time: %w", err)
-			}
-
-			continue
-
-		case opCodeIdle:
-			if p.idle, err = readLength(p.reader); err != nil {
-				return nil, fmt.Errorf("failed to read idle: %w", err)
-			}
-
-			continue
-
-		case opCodeFreq:
-			if p.freq, err = readByte(p.reader); err != nil {
-				return nil, fmt.Errorf("failed to read freq: %w", err)
-			}
-
-			continue
-
-		case opCodeSelectDB:
-			if p.db, err = readLength(p.reader); err != nil {
-				return nil, fmt.Errorf("failed to read database selector: %w", err)
-			}
-
-			continue
-
-		case opCodeAux:
-			key, err := readString(p.reader)
-
-			if err != nil {
-				return nil, fmt.Errorf("failed to read aux key: %w", err)
-			}
-
-			value, err := readString(p.reader)
-
-			if err != nil {
-				return nil, fmt.Errorf("failed to read aux value: %w", err)
-			}
-
-			return &Aux{Key: key, Value: value}, nil
-
-		case opCodeResizeDB:
-			dbSize, err := readLength(p.reader)
-
-			if err != nil {
-				return nil, fmt.Errorf("failed to read database size: %w", err)
-			}
-
-			expireSize, err := readLength(p.reader)
-
-			if err != nil {
-				return nil, fmt.Errorf("failed to read expire size: %w", err)
-			}
-
-			return &DatabaseSize{
-				Size:   dbSize,
-				Expire: expireSize,
-			}, nil
-
-		case opCodeModuleAux:
-			// TODO
-
-		case opCodeEOF:
-			// TODO: verify checksum
-			return nil, io.EOF
-		}
-
-		if p.key, err = readString(p.reader); err != nil {
-			return nil, fmt.Errorf("failed to read key: %w", err)
-		}
-
-		p.dataType = &dataType
+		return data, nil
 	}
+
+	return nil, io.EOF
 }
 
 func (p *Parser) verifyMagicString() error {
@@ -243,6 +158,109 @@ func (p *Parser) verifyVersion() error {
 	}
 
 	return nil
+}
+
+func (p *Parser) nextLoop() (interface{}, error) {
+	if p.dataType != nil {
+		data, err := p.readData()
+
+		if err != nil {
+			return nil, err
+		}
+
+		return data, nil
+	}
+
+	dataType, err := readByte(p.reader)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to read data type: %w", err)
+	}
+
+	switch dataType {
+	case opCodeExpireTimeMS:
+		if p.expiry, err = readMillisecondsTime(p.reader); err != nil {
+			return nil, fmt.Errorf("failed to read expire time ms: %w", err)
+		}
+
+		return nil, errContinueLoop
+
+	case opCodeExpireTime:
+		if p.expiry, err = readSecondsTime(p.reader); err != nil {
+			return nil, fmt.Errorf("failed to read expire time: %w", err)
+		}
+
+		return nil, errContinueLoop
+
+	case opCodeIdle:
+		if p.idle, err = readLength(p.reader); err != nil {
+			return nil, fmt.Errorf("failed to read idle: %w", err)
+		}
+
+		return nil, errContinueLoop
+
+	case opCodeFreq:
+		if p.freq, err = readByte(p.reader); err != nil {
+			return nil, fmt.Errorf("failed to read freq: %w", err)
+		}
+
+		return nil, errContinueLoop
+
+	case opCodeSelectDB:
+		if p.db, err = readLength(p.reader); err != nil {
+			return nil, fmt.Errorf("failed to read database selector: %w", err)
+		}
+
+		return nil, errContinueLoop
+
+	case opCodeAux:
+		key, err := readString(p.reader)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read aux key: %w", err)
+		}
+
+		value, err := readString(p.reader)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read aux value: %w", err)
+		}
+
+		return &Aux{Key: key, Value: value}, nil
+
+	case opCodeResizeDB:
+		dbSize, err := readLength(p.reader)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read database size: %w", err)
+		}
+
+		expireSize, err := readLength(p.reader)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read expire size: %w", err)
+		}
+
+		return &DatabaseSize{
+			Size:   dbSize,
+			Expire: expireSize,
+		}, nil
+
+	case opCodeModuleAux:
+		// TODO
+
+	case opCodeEOF:
+		// TODO: verify checksum
+		return nil, io.EOF
+	}
+
+	if p.key, err = readString(p.reader); err != nil {
+		return nil, fmt.Errorf("failed to read key: %w", err)
+	}
+
+	p.dataType = &dataType
+
+	return nil, errContinueLoop
 }
 
 func (p *Parser) readData() (interface{}, error) {
