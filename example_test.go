@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
-func ExampleParser() {
+func ExampleParser_basic() {
 	file, err := os.Open("dump.rdb")
 
 	if err != nil {
@@ -37,5 +38,21 @@ func ExampleParser() {
 				fmt.Println(data.Key, i, value)
 			}
 		}
+	}
+}
+
+func ExampleParser_keyFilter() {
+	file, err := os.Open("dump.rdb")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	parser := NewParser(file)
+
+	parser.KeyFilter = func(key *DataKey) bool {
+		return key.Database == 0 && strings.HasPrefix(key.Key, "foo:") && !key.Expired()
 	}
 }
