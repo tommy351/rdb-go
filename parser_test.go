@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
+	"github.com/onsi/gomega/types"
 	"github.com/tommy351/goldga"
 )
 
@@ -27,125 +28,154 @@ var _ = Describe("Parser", func() {
 		return matcher
 	}
 
-	testDumpFile := func(name string) {
-		var file *os.File
-
+	setupFixture := func(file **os.File, name string) {
 		BeforeEach(func() {
-			var err error
-			file, err = os.Open(fmt.Sprintf("fixtures/%s.rdb", name))
+			f, err := os.Open(fmt.Sprintf("fixtures/%s.rdb", name))
 			Expect(err).NotTo(HaveOccurred())
+			*file = f
 		})
 
 		AfterEach(func() {
-			Expect(file.Close()).To(Succeed())
+			Expect((*file).Close()).To(Succeed())
 		})
+	}
 
-		It("should match the golden file", func() {
-			var result []interface{}
-			parser := NewParser(file)
+	testDumpFile := func(name string) {
+		Describe(name, func() {
+			var file *os.File
 
-			for {
-				data, err := parser.Next()
+			setupFixture(&file, name)
 
-				if err == io.EOF {
-					break
+			It("should match the golden file", func() {
+				var result []interface{}
+				parser := NewParser(file)
+
+				for {
+					data, err := parser.Next()
+
+					if err == io.EOF {
+						break
+					}
+
+					Expect(err).NotTo(HaveOccurred())
+					result = append(result, data)
 				}
 
-				Expect(err).NotTo(HaveOccurred())
-				result = append(result, data)
-			}
-
-			Expect(result).To(matchGoldenFile())
+				Expect(result).To(matchGoldenFile())
+			})
 		})
 	}
 
-	for _, name := range []string{
-		// Basic
-		"empty_database",
-		"multiple_databases",
-		"keys_with_expiry",
-		"easily_compressible_string_key",
-		"integer_keys",
-		"non_ascii_values",
-		"uncompressible_string_keys",
-		// List
-		"linkedlist",
-		"ziplist_that_compresses_easily",
-		"ziplist_that_doesnt_compress",
-		"ziplist_with_integers",
-		// Set
-		"regular_set",
-		"intset_16",
-		"intset_32",
-		"intset_64",
-		// Sorted set
-		"regular_sorted_set",
-		"sorted_set_as_ziplist",
-		// Hash
-		"dictionary",
-		"hash_as_ziplist",
-		"zipmap_that_compresses_easily",
-		"zipmap_that_doesnt_compress",
-		"zipmap_with_big_values",
-	} {
-		name := name
-		Describe(name, func() {
-			testDumpFile(name)
-		})
-	}
+	// Basic
+	testDumpFile("empty_database")
+	testDumpFile("multiple_databases")
+	testDumpFile("keys_with_expiry")
+	testDumpFile("easily_compressible_string_key")
+	testDumpFile("integer_keys")
+	testDumpFile("non_ascii_values")
+	testDumpFile("uncompressible_string_keys")
+
+	// List
+	testDumpFile("linkedlist")
+	testDumpFile("ziplist_that_compresses_easily")
+	testDumpFile("ziplist_that_doesnt_compress")
+	testDumpFile("ziplist_with_integers")
+
+	// Set
+	testDumpFile("regular_set")
+	testDumpFile("intset_16")
+	testDumpFile("intset_32")
+	testDumpFile("intset_64")
+
+	// Sorted set
+	testDumpFile("regular_sorted_set")
+	testDumpFile("sorted_set_as_ziplist")
+
+	// Hash
+	testDumpFile("dictionary")
+	testDumpFile("hash_as_ziplist")
+	testDumpFile("zipmap_that_compresses_easily")
+	testDumpFile("zipmap_that_doesnt_compress")
+	testDumpFile("zipmap_with_big_values")
 
 	Describe("KeyFilter", func() {
-		var file *os.File
-
-		BeforeEach(func() {
-			var err error
-			file, err = os.Open("fixtures/parser_filters.rdb")
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		AfterEach(func() {
-			Expect(file.Close()).To(Succeed())
-		})
-
-		testKeyFilter := func(excludedKey string) {
-			parser := NewParser(file)
-
-			parser.KeyFilter = func(key *DataKey) bool {
-				return key.Key != excludedKey
-			}
-
-			for {
-				data, err := parser.Next()
-
-				if err == io.EOF {
-					break
-				}
-
-				Expect(err).NotTo(HaveOccurred())
-				Expect(data).To(PointTo(MatchFields(IgnoreExtras, Fields{
-					"DataKey": MatchFields(IgnoreExtras, Fields{
-						"Key": Not(Equal(excludedKey)),
-					}),
-				})))
-			}
+		expectKeyTo := func(actual interface{}, matcher types.GomegaMatcher) {
+			Expect(actual).To(PointTo(MatchFields(IgnoreExtras, Fields{
+				"DataKey": MatchFields(IgnoreExtras, Fields{
+					"Key": matcher,
+				}),
+			})))
 		}
 
-		for _, name := range []string{
-			// String
-			"k1",
-			// List
-			"l10",
-			// Set
-			"set1",
-			// Hash
-			"h1",
-			// Sorted Set
-			"z1",
-		} {
-			name := name
-			It(name, func() {
-				testKeyFilter(name)
+		testExcludeKey := func(filename, key string) {
+			Describe(fmt.Sprintf("Exclude %s from %s", key, filename), func() {
+				var file *os.File
+
+				setupFixture(&file, filename)
+
+				It("should exclude the key", func() {
+					parser := NewParser(file)
+					parser.KeyFilter = func(k *DataKey) bool {
+						return k.Key != key
+					}
+
+					for {
+						data, err := parser.Next()
+
+						if err == io.EOF {
+							break
+						}
+
+						Expect(err).NotTo(HaveOccurred())
+						expectKeyTo(data, Not(Equal(key)))
+					}
+				})
 			})
 		}
+
+		// Basic
+		testExcludeKey("parser_filters", "k1")
+		testExcludeKey("parser_filters", "s1")
+		testExcludeKey("parser_filters", "b1")
+
+		// List
+		testExcludeKey("parser_filters", "l10")
+		testExcludeKey("linkedlist", "force_linkedlist")
+
+		// Set
+		testExcludeKey("parser_filters", "set1")
+		testExcludeKey("regular_set", "regular_set")
+
+		// Hash
+		testExcludeKey("parser_filters", "h1")
+		testExcludeKey("hash_as_ziplist", "zipmap_compresses_easily")
+
+		// Sorted set
+		testExcludeKey("parser_filters", "z1")
+		testExcludeKey("regular_sorted_set", "force_sorted_set")
+
+		Describe("Filter by database", func() {
+			var file *os.File
+
+			setupFixture(&file, "multiple_databases")
+
+			It("should exclude database 0", func() {
+				parser := NewParser(file)
+				parser.KeyFilter = func(k *DataKey) bool {
+					return k.Database > 0
+				}
+
+				for {
+					data, err := parser.Next()
+
+					if err == io.EOF {
+						break
+					}
+
+					Expect(err).NotTo(HaveOccurred())
+					expectKeyTo(data, Equal("key_in_second_database"))
+				}
+			})
+		})
 	})
 })
