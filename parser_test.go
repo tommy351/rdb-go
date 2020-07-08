@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -97,6 +98,38 @@ var _ = Describe("Parser", func() {
 	testDumpFile("zipmap_that_compresses_easily")
 	testDumpFile("zipmap_that_doesnt_compress")
 	testDumpFile("zipmap_with_big_values")
+
+	When("file is not started with the magic string", func() {
+		It("should return ErrInvalidMagicString", func() {
+			parser := NewParser(bytes.NewBufferString("YOMAN"))
+			_, err := parser.Next()
+			Expect(err).To(Equal(ErrInvalidMagicString))
+		})
+	})
+
+	When("version is not a number", func() {
+		It("should return error", func() {
+			parser := NewParser(bytes.NewBufferString("REDISxxxx"))
+			_, err := parser.Next()
+			Expect(err).To(MatchError(HavePrefix(`invalid version "xxxx"`)))
+		})
+	})
+
+	When("version < 1", func() {
+		It("should return UnsupportedVersionError", func() {
+			parser := NewParser(bytes.NewBufferString("REDIS0000"))
+			_, err := parser.Next()
+			Expect(err).To(Equal(UnsupportedVersionError{Version: 0}))
+		})
+	})
+
+	When("version > 9", func() {
+		It("should return UnsupportedVersionError", func() {
+			parser := NewParser(bytes.NewBufferString("REDIS0010"))
+			_, err := parser.Next()
+			Expect(err).To(Equal(UnsupportedVersionError{Version: 10}))
+		})
+	})
 
 	Describe("KeyFilter", func() {
 		expectKeyTo := func(actual interface{}, matcher types.GomegaMatcher) {

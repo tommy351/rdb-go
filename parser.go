@@ -222,7 +222,7 @@ func (p *Parser) verifyVersion() error {
 	version, err := strconv.Atoi(s)
 
 	if err != nil {
-		return fmt.Errorf("invalid version: %w", err)
+		return fmt.Errorf("invalid version %q: %w", s, err)
 	}
 
 	if version < minVersion || version > maxVersion {
