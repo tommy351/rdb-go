@@ -81,6 +81,7 @@ var _ = Describe("Parser", func() {
 	testDumpFile("ziplist_that_compresses_easily")
 	testDumpFile("ziplist_that_doesnt_compress")
 	testDumpFile("ziplist_with_integers")
+	testDumpFile("quicklist")
 
 	// Set
 	testDumpFile("regular_set")

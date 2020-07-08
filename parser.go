@@ -109,7 +109,7 @@ func (p *Parser) Next() (interface{}, error) {
 		if p.dataType != nil {
 			data, err := p.readData()
 
-			if err == errContinueLoop {
+			if errors.Is(err, errContinueLoop) {
 				continue
 			}
 

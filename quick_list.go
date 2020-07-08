@@ -67,6 +67,7 @@ func (q *quickListIterator) Next() (interface{}, error) {
 			Reader:      q.Reader,
 			ValueReader: q.ValueReader,
 			Mapper:      q,
+			ValueLength: 1,
 		}
 	}
 
