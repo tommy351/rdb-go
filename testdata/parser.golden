@@ -24436,7 +24436,7 @@
 }
 '''
 "Parser quicklist should match the golden file" = '''
-([]interface {}) (len=110) {
+([]interface {}) (len=108) {
  (*rdb.Aux)({
   Key: (string) (len=9) "redis-ver",
   Value: (string) (len=5) "6.0.5"
@@ -24469,108 +24469,1006 @@
   },
   Length: (int64) 1
  }),
- (interface {}) <nil>,
- (string) (len=2) "v0",
- (string) (len=2) "v1",
- (string) (len=2) "v2",
- (string) (len=2) "v3",
- (string) (len=2) "v4",
- (string) (len=2) "v5",
- (string) (len=2) "v6",
- (string) (len=2) "v7",
- (string) (len=2) "v8",
- (string) (len=2) "v9",
- (string) (len=3) "v10",
- (string) (len=3) "v11",
- (string) (len=3) "v12",
- (string) (len=3) "v13",
- (string) (len=3) "v14",
- (string) (len=3) "v15",
- (string) (len=3) "v16",
- (string) (len=3) "v17",
- (string) (len=3) "v18",
- (string) (len=3) "v19",
- (string) (len=3) "v20",
- (string) (len=3) "v21",
- (string) (len=3) "v22",
- (string) (len=3) "v23",
- (string) (len=3) "v24",
- (string) (len=3) "v25",
- (string) (len=3) "v26",
- (string) (len=3) "v27",
- (string) (len=3) "v28",
- (string) (len=3) "v29",
- (string) (len=3) "v30",
- (string) (len=3) "v31",
- (string) (len=3) "v32",
- (string) (len=3) "v33",
- (string) (len=3) "v34",
- (string) (len=3) "v35",
- (string) (len=3) "v36",
- (string) (len=3) "v37",
- (string) (len=3) "v38",
- (string) (len=3) "v39",
- (string) (len=3) "v40",
- (string) (len=3) "v41",
- (string) (len=3) "v42",
- (string) (len=3) "v43",
- (string) (len=3) "v44",
- (string) (len=3) "v45",
- (string) (len=3) "v46",
- (string) (len=3) "v47",
- (string) (len=3) "v48",
- (string) (len=3) "v49",
- (string) (len=3) "v50",
- (string) (len=3) "v51",
- (string) (len=3) "v52",
- (string) (len=3) "v53",
- (string) (len=3) "v54",
- (string) (len=3) "v55",
- (string) (len=3) "v56",
- (string) (len=3) "v57",
- (string) (len=3) "v58",
- (string) (len=3) "v59",
- (string) (len=3) "v60",
- (string) (len=3) "v61",
- (string) (len=3) "v62",
- (string) (len=3) "v63",
- (string) (len=3) "v64",
- (string) (len=3) "v65",
- (string) (len=3) "v66",
- (string) (len=3) "v67",
- (string) (len=3) "v68",
- (string) (len=3) "v69",
- (string) (len=3) "v70",
- (string) (len=3) "v71",
- (string) (len=3) "v72",
- (string) (len=3) "v73",
- (string) (len=3) "v74",
- (string) (len=3) "v75",
- (string) (len=3) "v76",
- (string) (len=3) "v77",
- (string) (len=3) "v78",
- (string) (len=3) "v79",
- (string) (len=3) "v80",
- (string) (len=3) "v81",
- (string) (len=3) "v82",
- (string) (len=3) "v83",
- (string) (len=3) "v84",
- (string) (len=3) "v85",
- (string) (len=3) "v86",
- (string) (len=3) "v87",
- (string) (len=3) "v88",
- (string) (len=3) "v89",
- (string) (len=3) "v90",
- (string) (len=3) "v91",
- (string) (len=3) "v92",
- (string) (len=3) "v93",
- (string) (len=3) "v94",
- (string) (len=3) "v95",
- (string) (len=3) "v96",
- (string) (len=3) "v97",
- (string) (len=3) "v98",
- (string) (len=3) "v99",
- (interface {}) <nil>,
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 0,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v0"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 1,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v1"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 2,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v2"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 3,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v3"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 4,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v4"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 5,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v5"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 6,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v6"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 7,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v7"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 8,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v8"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 9,
+  Length: (int64) 100,
+  Value: (string) (len=2) "v9"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 10,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v10"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 11,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v11"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 12,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v12"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 13,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v13"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 14,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v14"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 15,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v15"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 16,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v16"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 17,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v17"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 18,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v18"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 19,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v19"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 20,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v20"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 21,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v21"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 22,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v22"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 23,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v23"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 24,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v24"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 25,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v25"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 26,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v26"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 27,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v27"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 28,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v28"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 29,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v29"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 30,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v30"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 31,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v31"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 32,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v32"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 33,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v33"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 34,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v34"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 35,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v35"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 36,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v36"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 37,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v37"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 38,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v38"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 39,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v39"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 40,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v40"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 41,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v41"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 42,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v42"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 43,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v43"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 44,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v44"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 45,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v45"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 46,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v46"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 47,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v47"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 48,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v48"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 49,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v49"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 50,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v50"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 51,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v51"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 52,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v52"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 53,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v53"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 54,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v54"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 55,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v55"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 56,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v56"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 57,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v57"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 58,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v58"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 59,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v59"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 60,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v60"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 61,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v61"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 62,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v62"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 63,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v63"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 64,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v64"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 65,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v65"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 66,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v66"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 67,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v67"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 68,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v68"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 69,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v69"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 70,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v70"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 71,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v71"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 72,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v72"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 73,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v73"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 74,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v74"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 75,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v75"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 76,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v76"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 77,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v77"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 78,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v78"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 79,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v79"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 80,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v80"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 81,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v81"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 82,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v82"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 83,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v83"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 84,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v84"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 85,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v85"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 86,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v86"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 87,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v87"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 88,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v88"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 89,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v89"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 90,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v90"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 91,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v91"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 92,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v92"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 93,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v93"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 94,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v94"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 95,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v95"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 96,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v96"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 97,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v97"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 98,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v98"
+ }),
+ (*rdb.ListEntry)({
+  DataKey: (rdb.DataKey) {
+   Database: (int64) 0,
+   Key: (string) (len=9) "quicklist",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Index: (int64) 99,
+  Length: (int64) 100,
+  Value: (string) (len=3) "v99"
+ }),
  (*rdb.ListData)({
   DataKey: (rdb.DataKey) {
    Database: (int64) 0,

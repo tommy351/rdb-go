@@ -75,18 +75,24 @@ func (q *quickListIterator) Next() (interface{}, error) {
 }
 
 func (q *quickListIterator) MapHead(head *collectionHead) (interface{}, error) {
-	return nil, nil
+	return nil, errContinueLoop
 }
 
 func (q *quickListIterator) MapEntry(entry *collectionEntry) (interface{}, error) {
+	mappedEntry, err := q.Mapper.MapEntry(entry)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to map entry in quicklist: %w", err)
+	}
+
 	q.values = append(q.values, entry.Value)
 
-	return entry.Value, nil
+	return mappedEntry, nil
 }
 
 func (q *quickListIterator) MapSlice(slice *collectionSlice) (interface{}, error) {
 	q.index++
 	q.iterator = nil
 
-	return nil, nil
+	return nil, errContinueLoop
 }
