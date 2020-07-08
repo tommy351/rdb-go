@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -52,7 +53,8 @@ const (
 
 // nolint: gochecknoglobals
 var (
-	magicString = []byte("REDIS")
+	magicString     = []byte("REDIS")
+	errContinueLoop = errors.New("continue loop")
 )
 
 // Parser parses a RDB dump file.
@@ -103,99 +105,110 @@ func (p *Parser) Next() (interface{}, error) {
 		p.initialized = true
 	}
 
-	if p.dataType != nil {
-		return p.readData()
-	}
+	for {
+		if p.dataType != nil {
+			data, err := p.readData()
 
-	dataType, err := readByte(p.reader)
+			if err == errContinueLoop {
+				continue
+			}
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to read data type: %w", err)
-	}
+			if err != nil {
+				return nil, err
+			}
 
-	switch dataType {
-	case opCodeExpireTimeMS:
-		if p.expiry, err = readMillisecondsTime(p.reader); err != nil {
-			return nil, fmt.Errorf("failed to read expire time ms: %w", err)
+			return data, nil
 		}
 
-		return p.Next()
-
-	case opCodeExpireTime:
-		if p.expiry, err = readSecondsTime(p.reader); err != nil {
-			return nil, fmt.Errorf("failed to read expire time: %w", err)
-		}
-
-		return p.Next()
-
-	case opCodeIdle:
-		if p.idle, err = readLength(p.reader); err != nil {
-			return nil, fmt.Errorf("failed to read idle: %w", err)
-		}
-
-		return p.Next()
-
-	case opCodeFreq:
-		if p.freq, err = readByte(p.reader); err != nil {
-			return nil, fmt.Errorf("failed to read freq: %w", err)
-		}
-
-		return p.Next()
-
-	case opCodeSelectDB:
-		if p.db, err = readLength(p.reader); err != nil {
-			return nil, fmt.Errorf("failed to read database selector: %w", err)
-		}
-
-		return p.Next()
-
-	case opCodeAux:
-		key, err := readString(p.reader)
+		dataType, err := readByte(p.reader)
 
 		if err != nil {
-			return nil, fmt.Errorf("failed to read aux key: %w", err)
+			return nil, fmt.Errorf("failed to read data type: %w", err)
 		}
 
-		value, err := readString(p.reader)
+		switch dataType {
+		case opCodeExpireTimeMS:
+			if p.expiry, err = readMillisecondsTime(p.reader); err != nil {
+				return nil, fmt.Errorf("failed to read expire time ms: %w", err)
+			}
 
-		if err != nil {
-			return nil, fmt.Errorf("failed to read aux value: %w", err)
+			continue
+
+		case opCodeExpireTime:
+			if p.expiry, err = readSecondsTime(p.reader); err != nil {
+				return nil, fmt.Errorf("failed to read expire time: %w", err)
+			}
+
+			continue
+
+		case opCodeIdle:
+			if p.idle, err = readLength(p.reader); err != nil {
+				return nil, fmt.Errorf("failed to read idle: %w", err)
+			}
+
+			continue
+
+		case opCodeFreq:
+			if p.freq, err = readByte(p.reader); err != nil {
+				return nil, fmt.Errorf("failed to read freq: %w", err)
+			}
+
+			continue
+
+		case opCodeSelectDB:
+			if p.db, err = readLength(p.reader); err != nil {
+				return nil, fmt.Errorf("failed to read database selector: %w", err)
+			}
+
+			continue
+
+		case opCodeAux:
+			key, err := readString(p.reader)
+
+			if err != nil {
+				return nil, fmt.Errorf("failed to read aux key: %w", err)
+			}
+
+			value, err := readString(p.reader)
+
+			if err != nil {
+				return nil, fmt.Errorf("failed to read aux value: %w", err)
+			}
+
+			return &Aux{Key: key, Value: value}, nil
+
+		case opCodeResizeDB:
+			dbSize, err := readLength(p.reader)
+
+			if err != nil {
+				return nil, fmt.Errorf("failed to read database size: %w", err)
+			}
+
+			expireSize, err := readLength(p.reader)
+
+			if err != nil {
+				return nil, fmt.Errorf("failed to read expire size: %w", err)
+			}
+
+			return &DatabaseSize{
+				Size:   dbSize,
+				Expire: expireSize,
+			}, nil
+
+		case opCodeModuleAux:
+			// TODO
+
+		case opCodeEOF:
+			// TODO: verify checksum
+			return nil, io.EOF
 		}
 
-		return &Aux{Key: key, Value: value}, nil
-
-	case opCodeResizeDB:
-		dbSize, err := readLength(p.reader)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to read database size: %w", err)
+		if p.key, err = readString(p.reader); err != nil {
+			return nil, fmt.Errorf("failed to read key: %w", err)
 		}
 
-		expireSize, err := readLength(p.reader)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to read expire size: %w", err)
-		}
-
-		return &DatabaseSize{
-			Size:   dbSize,
-			Expire: expireSize,
-		}, nil
-
-	case opCodeModuleAux:
-		// TODO
-
-	case opCodeEOF:
-		// TODO: verify checksum
-		return nil, io.EOF
+		p.dataType = &dataType
 	}
-
-	if p.key, err = readString(p.reader); err != nil {
-		return nil, fmt.Errorf("failed to read key: %w", err)
-	}
-
-	p.dataType = &dataType
-	return p.Next()
 }
 
 func (p *Parser) verifyMagicString() error {
@@ -245,8 +258,7 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		p.dataType = nil
-		p.iterator = nil
-		return p.Next()
+		return nil, errContinueLoop
 	}
 
 	if p.iterator != nil {
@@ -255,7 +267,7 @@ func (p *Parser) readData() (interface{}, error) {
 		if err == io.EOF {
 			p.dataType = nil
 			p.iterator = nil
-			return p.Next()
+			return nil, errContinueLoop
 		}
 
 		if err != nil {
@@ -284,7 +296,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:      listMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeSet:
 		p.iterator = &seqIterator{
@@ -294,7 +306,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:      setMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeZSet, typeZSet2:
 		p.iterator = &seqIterator{
@@ -304,7 +316,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:      sortedSetMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeHash:
 		p.iterator = &seqIterator{
@@ -314,7 +326,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:      hashMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeHashZipMap:
 		p.iterator = &zipMapIterator{
@@ -323,7 +335,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:  hashMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeListZipList:
 		p.iterator = &zipListIterator{
@@ -334,7 +346,7 @@ func (p *Parser) readData() (interface{}, error) {
 			ValueLength: 1,
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeSetIntSet:
 		p.iterator = &intSetIterator{
@@ -343,7 +355,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:  setMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeZSetZipList:
 		p.iterator = &zipListIterator{
@@ -354,7 +366,7 @@ func (p *Parser) readData() (interface{}, error) {
 			ValueLength: 2,
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeHashZipList:
 		p.iterator = &zipListIterator{
@@ -365,7 +377,7 @@ func (p *Parser) readData() (interface{}, error) {
 			ValueLength: 2,
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 
 	case typeListQuickList:
 		p.iterator = &quickListIterator{
@@ -375,7 +387,7 @@ func (p *Parser) readData() (interface{}, error) {
 			Mapper:      listMapper{},
 		}
 
-		return p.Next()
+		return nil, errContinueLoop
 	}
 
 	return nil, UnsupportedDataTypeError{DataType: *p.dataType}
