@@ -1,19 +1,20 @@
 package rdb
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+
+	"github.com/tommy351/rdb-go/internal/reader"
 )
 
 type zipMapIterator struct {
 	DataKey DataKey
-	Reader  io.Reader
+	Reader  reader.BytesReader
 	Mapper  collectionMapper
 
-	buf    *bytes.Buffer
-	index  int64
-	length int64
+	buf    *reader.Buffer
+	index  int
+	length int
 	done   bool
 	values []interface{}
 }
@@ -30,15 +31,15 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("zipmap string read error: %w", err)
 		}
 
-		z.buf = bytes.NewBuffer(buf)
+		z.buf = reader.NewBuffer(buf)
 
-		length, err := readByte(z.buf)
+		length, err := reader.ReadUint8(z.buf)
 
 		if err != nil {
 			return nil, fmt.Errorf("zipmap length read error: %w", err)
 		}
 
-		z.length = int64(length)
+		z.length = int(length)
 
 		return z.Mapper.MapHead(&collectionHead{
 			DataKey: z.DataKey,
@@ -49,8 +50,6 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	keyLength, err := z.readLength()
 
 	if err == io.EOF {
-		z.buf.Reset()
-
 		z.done = true
 		z.buf = nil
 
@@ -66,7 +65,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 
 	var value HashValue
 
-	if value.Index, err = readStringByLength(z.buf, keyLength); err != nil {
+	if value.Index, err = reader.ReadString(z.buf, keyLength); err != nil {
 		return nil, fmt.Errorf("zipmap key read error: %w", err)
 	}
 
@@ -81,11 +80,11 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	// Read the free byte
-	if _, err := readByte(z.buf); err != nil {
+	if _, err := reader.ReadUint8(z.buf); err != nil {
 		return nil, fmt.Errorf("zipmap free byte read error: %w", err)
 	}
 
-	if value.Value, err = readStringByLength(z.buf, valueLength); err != nil {
+	if value.Value, err = reader.ReadString(z.buf, valueLength); err != nil {
 		return nil, fmt.Errorf("zipmap value read error: %w", err)
 	}
 
@@ -106,25 +105,25 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	return element, nil
 }
 
-func (z *zipMapIterator) readLength() (int64, error) {
-	first, err := readByte(z.buf)
+func (z *zipMapIterator) readLength() (int, error) {
+	first, err := reader.ReadUint8(z.buf)
 
 	if err != nil {
 		return 0, err
 	}
 
 	if first < 254 {
-		return int64(first), nil
+		return int(first), nil
 	}
 
 	if first == 254 {
-		length, err := readUint32(z.buf)
+		length, err := reader.ReadUint32(z.buf)
 
 		if err != nil {
 			return 0, err
 		}
 
-		return int64(length), nil
+		return int(length), nil
 	}
 
 	return 0, io.EOF

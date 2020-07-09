@@ -2,9 +2,9 @@ package rdb
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/tommy351/rdb-go/internal/convert"
+	"github.com/tommy351/rdb-go/internal/reader"
 )
 
 // ListHead contains the key and the length of a list. It is returned when a list
@@ -12,14 +12,14 @@ import (
 // quicklist data structure.
 type ListHead struct {
 	DataKey
-	Length int64
+	Length int
 }
 
 // ListEntry is returned when a new list entry is read.
 type ListEntry struct {
 	DataKey
-	Index  int64
-	Length int64
+	Index  int
+	Length int
 	Value  string
 }
 
@@ -74,7 +74,7 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type listZipListValueReader struct{}
 
-func (listZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (listZipListValueReader) ReadValue(r reader.BytesReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
 
 	if err != nil {

@@ -3,16 +3,18 @@ package rdb
 import (
 	"fmt"
 	"io"
+
+	"github.com/tommy351/rdb-go/internal/reader"
 )
 
 type seqIterator struct {
 	DataKey     DataKey
-	Reader      io.Reader
+	Reader      reader.BytesReader
 	ValueReader valueReader
 	Mapper      collectionMapper
 
-	index       int64
-	length      int64
+	index       int
+	length      int
 	values      []interface{}
 	initialized bool
 	done        bool

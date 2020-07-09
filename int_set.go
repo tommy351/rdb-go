@@ -1,21 +1,22 @@
 package rdb
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+
+	"github.com/tommy351/rdb-go/internal/reader"
 )
 
 type intSetIterator struct {
 	DataKey DataKey
-	Reader  io.Reader
+	Reader  reader.BytesReader
 	Mapper  collectionMapper
 
-	buf      *bytes.Buffer
+	buf      *reader.Buffer
 	done     bool
 	encoding uint32
-	index    int64
-	length   int64
+	index    int
+	length   int
 	values   []interface{}
 }
 
@@ -31,19 +32,19 @@ func (i *intSetIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
-		i.buf = bytes.NewBuffer(buf)
+		i.buf = reader.NewBuffer(buf)
 
-		if i.encoding, err = readUint32(i.buf); err != nil {
+		if i.encoding, err = reader.ReadUint32(i.buf); err != nil {
 			return nil, fmt.Errorf("failed to read intset encoding: %w", err)
 		}
 
-		length, err := readUint32(i.buf)
+		length, err := reader.ReadUint32(i.buf)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset length: %w", err)
 		}
 
-		i.length = int64(length)
+		i.length = int(length)
 
 		head, err := i.Mapper.MapHead(&collectionHead{
 			DataKey: i.DataKey,
@@ -58,8 +59,6 @@ func (i *intSetIterator) Next() (interface{}, error) {
 	}
 
 	if i.index == i.length {
-		i.buf.Reset()
-
 		i.done = true
 		i.buf = nil
 
@@ -101,11 +100,11 @@ func (i *intSetIterator) Next() (interface{}, error) {
 func (i *intSetIterator) readValue() (interface{}, error) {
 	switch i.encoding {
 	case 8:
-		return readInt64(i.buf)
+		return reader.ReadInt64(i.buf)
 	case 4:
-		return readInt32(i.buf)
+		return reader.ReadInt32(i.buf)
 	case 2:
-		return readInt16(i.buf)
+		return reader.ReadInt16(i.buf)
 	}
 
 	return nil, IntSetEncodingError{Encoding: i.encoding}
