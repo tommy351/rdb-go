@@ -2,6 +2,7 @@ package reader
 
 import (
 	"io"
+	"io/ioutil"
 )
 
 const (
@@ -89,6 +90,23 @@ func (w *Window) ReadBytes(n int) ([]byte, error) {
 	w.discard(len(buf))
 
 	return buf, nil
+}
+
+func (w *Window) SkipBytes(n int) error {
+	remaining := w.remaining()
+
+	if n < remaining {
+		w.discard(n)
+		return nil
+	}
+
+	w.discard(remaining)
+
+	if _, err := io.CopyN(ioutil.Discard, w.r, int64(n-remaining)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func max(a, b int) int {

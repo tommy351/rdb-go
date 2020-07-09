@@ -208,14 +208,6 @@ func read24BitSignedNumber(r reader.BytesReader) (int, error) {
 	return int(int32(buf[2])<<24|int32(buf[1])<<16|int32(buf[0])<<8) >> 8, nil
 }
 
-func skipBytes(r reader.BytesReader, n int) error {
-	if _, err := r.ReadBytes(n); err != nil {
-		return fmt.Errorf("failed to skip %d bytes: %w", n, err)
-	}
-
-	return nil
-}
-
 func skipString(r reader.BytesReader) error {
 	length, encoded, err := readLengthWithEncoding(r)
 
@@ -224,16 +216,16 @@ func skipString(r reader.BytesReader) error {
 	}
 
 	if !encoded {
-		return skipBytes(r, length)
+		return r.SkipBytes(length)
 	}
 
 	switch length {
 	case encInt8:
-		return skipBytes(r, 1)
+		return r.SkipBytes(1)
 	case encInt16:
-		return skipBytes(r, 2)
+		return r.SkipBytes(2)
 	case encInt32:
-		return skipBytes(r, 4)
+		return r.SkipBytes(4)
 	case encLZF:
 		// Read compressed length
 		cLength, err := readLength(r)
@@ -247,14 +239,14 @@ func skipString(r reader.BytesReader) error {
 			return err
 		}
 
-		return skipBytes(r, cLength)
+		return r.SkipBytes(cLength)
 	}
 
 	return StringEncodingError{Encoding: length}
 }
 
 func skipBinaryDouble(r reader.BytesReader) error {
-	return skipBytes(r, 8)
+	return r.SkipBytes(8)
 }
 
 func skipFloat(r reader.BytesReader) error {
@@ -265,7 +257,7 @@ func skipFloat(r reader.BytesReader) error {
 	}
 
 	if length < 253 {
-		return skipBytes(r, int(length))
+		return r.SkipBytes(int(length))
 	}
 
 	return nil

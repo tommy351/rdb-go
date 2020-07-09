@@ -7,6 +7,7 @@ import (
 
 type BytesReader interface {
 	ReadBytes(n int) ([]byte, error)
+	SkipBytes(n int) error
 }
 
 func ReadUint8(r BytesReader) (uint8, error) {

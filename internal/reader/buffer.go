@@ -15,13 +15,22 @@ func NewBuffer(data []byte) *Buffer {
 
 func (b *Buffer) ReadBytes(n int) ([]byte, error) {
 	offset := b.offset
-	remaining := len(b.data) - offset
 
-	if remaining < n {
-		return nil, io.ErrUnexpectedEOF
+	if err := b.SkipBytes(n); err != nil {
+		return nil, err
 	}
 
-	b.offset = offset + n
-
 	return b.data[offset : offset+n], nil
+}
+
+func (b *Buffer) SkipBytes(n int) error {
+	remaining := len(b.data) - b.offset
+
+	if remaining < n {
+		return io.ErrUnexpectedEOF
+	}
+
+	b.offset += n
+
+	return nil
 }
