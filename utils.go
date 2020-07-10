@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"strconv"
 	"time"
@@ -214,13 +213,13 @@ func readLength(r bufReader) (int, error) {
 }
 
 func readString(r bufReader) (string, error) {
-	r, err := newStringReader(r)
+	r, length, err := newStringReader(r)
 
 	if err != nil {
 		return "", err
 	}
 
-	buf, err := ioutil.ReadAll(r)
+	buf, err := readBytes(r, length)
 
 	if err != nil {
 		return "", err

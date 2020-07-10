@@ -24,7 +24,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 	}
 
 	if i.r == nil {
-		sr, err := newStringReader(i.Reader)
+		sr, _, err := newStringReader(i.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)

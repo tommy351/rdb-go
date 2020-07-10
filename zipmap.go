@@ -23,7 +23,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	if z.sr == nil {
-		sr, err := newStringReader(z.Reader)
+		sr, _, err := newStringReader(z.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("zipmap string read error: %w", err)

@@ -20,7 +20,13 @@ func newBufReader(r io.Reader) bufReader {
 }
 
 func newBufReaderFromString(s string) bufReader {
-	return newBufReader(bytes.NewReader([]byte(s)))
+	r := bytes.NewReader([]byte(s))
+
+	if r.Len() > defaultBufSize {
+		return newBufReader(r)
+	}
+
+	return bufio.NewReaderSize(r, r.Len())
 }
 
 type limitedBufReader struct {
@@ -50,16 +56,37 @@ func (l *limitedBufReader) Read(buf []byte) (int, error) {
 }
 
 func (l *limitedBufReader) Peek(n int) ([]byte, error) {
+	if l.n <= 0 {
+		return nil, io.EOF
+	}
+
+	if n > l.n {
+		return l.r.Peek(l.n)
+	}
+
 	return l.r.Peek(n)
 }
 
-func (l *limitedBufReader) Discard(n int) (int, error) {
-	discarded, err := l.r.Discard(n)
+func (l *limitedBufReader) Discard(n int) (discarded int, err error) {
+	if l.n <= 0 {
+		return 0, io.EOF
+	}
+
+	if n > l.n {
+		discarded, err = l.r.Discard(l.n)
+	} else {
+		discarded, err = l.r.Discard(n)
+	}
+
 	l.n -= discarded
-	return discarded, err
+	return
 }
 
 func (l *limitedBufReader) ReadByte() (byte, error) {
+	if l.n <= 0 {
+		return 0, io.EOF
+	}
+
 	b, err := l.r.ReadByte()
 	l.n--
 	return b, err

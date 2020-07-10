@@ -25,7 +25,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	}
 
 	if z.sr == nil {
-		sr, err := newStringReader(z.Reader)
+		sr, _, err := newStringReader(z.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read ziplist buffer: %w", err)
