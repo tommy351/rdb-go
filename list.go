@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/tommy351/rdb-go/internal/convert"
 )
@@ -12,14 +11,14 @@ import (
 // quicklist data structure.
 type ListHead struct {
 	DataKey
-	Length int64
+	Length int
 }
 
 // ListEntry is returned when a new list entry is read.
 type ListEntry struct {
 	DataKey
-	Index  int64
-	Length int64
+	Index  int
+	Length int
 	Value  string
 }
 
@@ -74,7 +73,7 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type listZipListValueReader struct{}
 
-func (listZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (listZipListValueReader) ReadValue(r byteReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
 
 	if err != nil {

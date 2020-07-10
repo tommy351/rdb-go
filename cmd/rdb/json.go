@@ -10,7 +10,7 @@ import (
 )
 
 type JSONPrinter struct {
-	db         int64
+	db         int
 	writer     io.Writer
 	keyIndex   int
 	entryIndex int

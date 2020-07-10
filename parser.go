@@ -61,11 +61,9 @@ var (
 type Parser struct {
 	KeyFilter func(key *DataKey) bool
 
-	reader      io.Reader
+	reader      byteReader
 	initialized bool
-	freq        byte
-	db          int64
-	idle        int64
+	db          int
 	expiry      *time.Time
 	dataType    *byte
 	key         string
@@ -75,7 +73,7 @@ type Parser struct {
 // NewParser returns a new Parser to read from r.
 func NewParser(r io.Reader) *Parser {
 	return &Parser{
-		reader: r,
+		reader: newBufferReader(r),
 		db:     -1,
 	}
 }
@@ -127,7 +125,7 @@ func (p *Parser) Next() (interface{}, error) {
 }
 
 func (p *Parser) verifyMagicString() error {
-	buf, err := readBytes(p.reader, int64(len(magicString)))
+	buf, err := p.reader.ReadBytes(len(magicString))
 
 	if err != nil {
 		return fmt.Errorf("failed to read magic string: %w", err)
@@ -193,14 +191,14 @@ func (p *Parser) nextLoop() (interface{}, error) {
 		return nil, errContinueLoop
 
 	case opCodeIdle:
-		if p.idle, err = readLength(p.reader); err != nil {
+		if _, err := readLength(p.reader); err != nil {
 			return nil, fmt.Errorf("failed to read idle: %w", err)
 		}
 
 		return nil, errContinueLoop
 
 	case opCodeFreq:
-		if p.freq, err = readByte(p.reader); err != nil {
+		if _, err := readByte(p.reader); err != nil {
 			return nil, fmt.Errorf("failed to read freq: %w", err)
 		}
 
@@ -432,7 +430,7 @@ func (p *Parser) skipData() error {
 			return fmt.Errorf("failed to read zset length: %w", err)
 		}
 
-		for i := int64(0); i < length; i++ {
+		for i := 0; i < length; i++ {
 			if err := skipString(p.reader); err != nil {
 				return err
 			}
@@ -470,8 +468,8 @@ func (p *Parser) skipData() error {
 	return nil
 }
 
-func (p *Parser) skipStrings(n int64) error {
-	for i := int64(0); i < n; i++ {
+func (p *Parser) skipStrings(n int) error {
+	for i := 0; i < n; i++ {
 		if err := skipString(p.reader); err != nil {
 			return err
 		}

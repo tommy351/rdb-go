@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/tommy351/rdb-go/internal/convert"
 )
@@ -17,14 +16,14 @@ type HashValue struct {
 // is read first time.
 type HashHead struct {
 	DataKey
-	Length int64
+	Length int
 }
 
 // HashEntry is returned when a new hash entry is read.
 type HashEntry struct {
 	DataKey
 	HashValue
-	Length int64
+	Length int
 }
 
 // HashData is returned when all entries in a hash are all read.
@@ -35,7 +34,7 @@ type HashData struct {
 
 type hashValueReader struct{}
 
-func (hashValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (hashValueReader) ReadValue(r byteReader) (interface{}, error) {
 	key, err := readString(r)
 
 	if err != nil {
@@ -87,7 +86,7 @@ func (hashMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type hashZipListValueReader struct{}
 
-func (hashZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (hashZipListValueReader) ReadValue(r byteReader) (interface{}, error) {
 	key, err := readZipListEntry(r)
 
 	if err != nil {

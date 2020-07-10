@@ -34,7 +34,7 @@ func (l LengthEncodingError) Error() string {
 }
 
 type StringEncodingError struct {
-	Encoding int64
+	Encoding int
 }
 
 func (s StringEncodingError) Error() string {
@@ -66,8 +66,8 @@ func (z ZipListHeaderError) Error() string {
 }
 
 type ZipListLengthError struct {
-	Length      int64
-	ValueLength int64
+	Length      int
+	ValueLength int
 }
 
 func (z ZipListLengthError) Error() string {

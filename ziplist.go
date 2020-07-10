@@ -1,25 +1,22 @@
 package rdb
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 )
 
 type zipListIterator struct {
 	DataKey     DataKey
-	Reader      io.Reader
+	Reader      byteReader
 	ValueReader valueReader
 	Mapper      collectionMapper
-	ValueLength int64
+	ValueLength int
 
-	buf        *bytes.Buffer
-	zlBytes    uint32
-	tailOffset uint32
-	index      int64
-	length     int64
-	done       bool
-	values     []interface{}
+	buf    byteReader
+	index  int
+	length int
+	done   bool
+	values []interface{}
 }
 
 func (z *zipListIterator) Next() (interface{}, error) {
@@ -34,13 +31,13 @@ func (z *zipListIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to read ziplist buffer: %w", err)
 		}
 
-		z.buf = bytes.NewBuffer(buf)
+		z.buf = newByteSliceReader(buf)
 
-		if z.zlBytes, err = readUint32(z.buf); err != nil {
+		if _, err := readUint32(z.buf); err != nil {
 			return nil, fmt.Errorf("failed to read ziplist zlbytes: %w", err)
 		}
 
-		if z.tailOffset, err = readUint32(z.buf); err != nil {
+		if _, err := readUint32(z.buf); err != nil {
 			return nil, fmt.Errorf("failed to ziplist tail offset: %w", err)
 		}
 
@@ -64,8 +61,6 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		if end != 255 {
 			return nil, ZipListEndError{Value: end}
 		}
-
-		z.buf.Reset()
 
 		z.done = true
 		z.buf = nil
@@ -99,14 +94,14 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	return element, nil
 }
 
-func (z *zipListIterator) readLength() (int64, error) {
+func (z *zipListIterator) readLength() (int, error) {
 	value, err := readUint16(z.buf)
 
 	if err != nil {
 		return 0, err
 	}
 
-	length := int64(value)
+	length := int(value)
 
 	if length%z.ValueLength != 0 {
 		return 0, ZipListLengthError{
@@ -118,7 +113,7 @@ func (z *zipListIterator) readLength() (int64, error) {
 	return length / z.ValueLength, nil
 }
 
-func readZipListEntry(r io.Reader) (interface{}, error) {
+func readZipListEntry(r byteReader) (interface{}, error) {
 	var prevLen uint32
 
 	b, err := readByte(r)
@@ -149,7 +144,7 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 
 	switch header >> 6 {
 	case 0:
-		return readStringByLength(r, int64(header&0x3f))
+		return readStringByLength(r, int(header&0x3f))
 	case 1:
 		next, err := readByte(r)
 
@@ -157,7 +152,7 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 			return nil, err
 		}
 
-		return readStringByLength(r, int64(header&0x3f)<<8|int64(next))
+		return readStringByLength(r, int(header&0x3f)<<8|int(next))
 	case 2:
 		length, err := readUint32BE(r)
 
@@ -165,7 +160,7 @@ func readZipListEntry(r io.Reader) (interface{}, error) {
 			return nil, err
 		}
 
-		return readStringByLength(r, int64(length))
+		return readStringByLength(r, int(length))
 	}
 
 	switch header >> 4 {

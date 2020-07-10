@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/tommy351/rdb-go/internal/convert"
 )
@@ -17,15 +16,15 @@ type SortedSetValue struct {
 // when a sorted set is read first time.
 type SortedSetHead struct {
 	DataKey
-	Length int64
+	Length int
 }
 
 // SortedSetEntry is returned when a new sorted set entry is read.
 type SortedSetEntry struct {
 	DataKey
 	SortedSetValue
-	Index  int64
-	Length int64
+	Index  int
+	Length int
 }
 
 // SortedSetData is returned when all entries in a sorted set are all read.
@@ -38,7 +37,7 @@ type sortedSetValueReader struct {
 	Type byte
 }
 
-func (z sortedSetValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (z sortedSetValueReader) ReadValue(r byteReader) (interface{}, error) {
 	value, err := readString(r)
 
 	if err != nil {
@@ -57,7 +56,7 @@ func (z sortedSetValueReader) ReadValue(r io.Reader) (interface{}, error) {
 	}, nil
 }
 
-func (z sortedSetValueReader) readScore(r io.Reader) (float64, error) {
+func (z sortedSetValueReader) readScore(r byteReader) (float64, error) {
 	if z.Type == typeZSet2 {
 		return readBinaryDouble(r)
 	}
@@ -98,7 +97,7 @@ func (sortedSetMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type sortedSetZipListValueReader struct{}
 
-func (s sortedSetZipListValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (s sortedSetZipListValueReader) ReadValue(r byteReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
 
 	if err != nil {
