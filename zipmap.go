@@ -1,17 +1,16 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 )
 
 type zipMapIterator struct {
 	DataKey DataKey
-	Reader  *bufio.Reader
+	Reader  bufReader
 	Mapper  collectionMapper
 
-	sr     *bufio.Reader
+	sr     bufReader
 	index  int
 	length int
 	done   bool

@@ -1,19 +1,18 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 )
 
 type zipListIterator struct {
 	DataKey     DataKey
-	Reader      *bufio.Reader
+	Reader      bufReader
 	ValueReader valueReader
 	Mapper      collectionMapper
 	ValueLength int
 
-	sr     *bufio.Reader
+	sr     bufReader
 	index  int
 	length int
 	done   bool
@@ -114,7 +113,7 @@ func (z *zipListIterator) readLength() (int, error) {
 	return length / z.ValueLength, nil
 }
 
-func readZipListEntry(r *bufio.Reader) (interface{}, error) {
+func readZipListEntry(r bufReader) (interface{}, error) {
 	var prevLen uint32
 
 	b, err := r.ReadByte()

@@ -1,14 +1,13 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 )
 
 type quickListIterator struct {
 	DataKey     DataKey
-	Reader      *bufio.Reader
+	Reader      bufReader
 	ValueReader valueReader
 	Mapper      collectionMapper
 

@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 
 	"github.com/tommy351/rdb-go/internal/convert"
@@ -38,7 +37,7 @@ type sortedSetValueReader struct {
 	Type byte
 }
 
-func (z sortedSetValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
+func (z sortedSetValueReader) ReadValue(r bufReader) (interface{}, error) {
 	value, err := readString(r)
 
 	if err != nil {
@@ -57,7 +56,7 @@ func (z sortedSetValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
 	}, nil
 }
 
-func (z sortedSetValueReader) readScore(r *bufio.Reader) (float64, error) {
+func (z sortedSetValueReader) readScore(r bufReader) (float64, error) {
 	if z.Type == typeZSet2 {
 		return readBinaryDouble(r)
 	}
@@ -98,7 +97,7 @@ func (sortedSetMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type sortedSetZipListValueReader struct{}
 
-func (s sortedSetZipListValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
+func (s sortedSetZipListValueReader) ReadValue(r bufReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
 
 	if err != nil {

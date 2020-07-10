@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bufio"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -11,13 +10,7 @@ import (
 	"time"
 )
 
-const defaultBufSize = 4096
-
-func newBufReader(r io.Reader) *bufio.Reader {
-	return bufio.NewReaderSize(r, defaultBufSize)
-}
-
-func readUint16(r *bufio.Reader) (uint16, error) {
+func readUint16(r bufReader) (uint16, error) {
 	buf, err := readBytes(r, 2)
 
 	if err != nil {
@@ -27,7 +20,7 @@ func readUint16(r *bufio.Reader) (uint16, error) {
 	return binary.LittleEndian.Uint16(buf), nil
 }
 
-func readUint32(r *bufio.Reader) (uint32, error) {
+func readUint32(r bufReader) (uint32, error) {
 	buf, err := readBytes(r, 4)
 
 	if err != nil {
@@ -37,7 +30,7 @@ func readUint32(r *bufio.Reader) (uint32, error) {
 	return binary.LittleEndian.Uint32(buf), nil
 }
 
-func readUint64(r *bufio.Reader) (uint64, error) {
+func readUint64(r bufReader) (uint64, error) {
 	buf, err := readBytes(r, 8)
 
 	if err != nil {
@@ -47,7 +40,7 @@ func readUint64(r *bufio.Reader) (uint64, error) {
 	return binary.LittleEndian.Uint64(buf), nil
 }
 
-func readUint32BE(r *bufio.Reader) (uint32, error) {
+func readUint32BE(r bufReader) (uint32, error) {
 	buf, err := readBytes(r, 4)
 
 	if err != nil {
@@ -57,7 +50,7 @@ func readUint32BE(r *bufio.Reader) (uint32, error) {
 	return binary.BigEndian.Uint32(buf), nil
 }
 
-func readUint64BE(r *bufio.Reader) (uint64, error) {
+func readUint64BE(r bufReader) (uint64, error) {
 	buf, err := readBytes(r, 8)
 
 	if err != nil {
@@ -67,7 +60,7 @@ func readUint64BE(r *bufio.Reader) (uint64, error) {
 	return binary.BigEndian.Uint64(buf), nil
 }
 
-func readInt8(r *bufio.Reader) (int8, error) {
+func readInt8(r bufReader) (int8, error) {
 	b, err := r.ReadByte()
 
 	if err != nil {
@@ -77,7 +70,7 @@ func readInt8(r *bufio.Reader) (int8, error) {
 	return int8(b), nil
 }
 
-func readInt16(r *bufio.Reader) (int16, error) {
+func readInt16(r bufReader) (int16, error) {
 	v, err := readUint16(r)
 
 	if err != nil {
@@ -87,7 +80,7 @@ func readInt16(r *bufio.Reader) (int16, error) {
 	return int16(v), nil
 }
 
-func readInt32(r *bufio.Reader) (int32, error) {
+func readInt32(r bufReader) (int32, error) {
 	v, err := readUint32(r)
 
 	if err != nil {
@@ -97,7 +90,7 @@ func readInt32(r *bufio.Reader) (int32, error) {
 	return int32(v), nil
 }
 
-func readInt64(r *bufio.Reader) (int64, error) {
+func readInt64(r bufReader) (int64, error) {
 	v, err := readUint64(r)
 
 	if err != nil {
@@ -107,7 +100,7 @@ func readInt64(r *bufio.Reader) (int64, error) {
 	return int64(v), nil
 }
 
-func readMillisecondsTime(r *bufio.Reader) (*time.Time, error) {
+func readMillisecondsTime(r bufReader) (*time.Time, error) {
 	value, err := readUint64(r)
 
 	if err != nil {
@@ -117,7 +110,7 @@ func readMillisecondsTime(r *bufio.Reader) (*time.Time, error) {
 	return timePtr(time.Unix(0, int64(value)*int64(time.Millisecond)).UTC()), nil
 }
 
-func readSecondsTime(r *bufio.Reader) (*time.Time, error) {
+func readSecondsTime(r bufReader) (*time.Time, error) {
 	value, err := readUint32(r)
 
 	if err != nil {
@@ -131,7 +124,7 @@ func timePtr(t time.Time) *time.Time {
 	return &t
 }
 
-func readBytes(r *bufio.Reader, n int) ([]byte, error) {
+func readBytes(r bufReader, n int) ([]byte, error) {
 	if n > defaultBufSize {
 		buf := make([]byte, n)
 
@@ -155,7 +148,7 @@ func readBytes(r *bufio.Reader, n int) ([]byte, error) {
 	return buf, nil
 }
 
-func readStringByLength(r *bufio.Reader, n int) (string, error) {
+func readStringByLength(r bufReader, n int) (string, error) {
 	buf, err := readBytes(r, n)
 
 	if err != nil {
@@ -165,7 +158,7 @@ func readStringByLength(r *bufio.Reader, n int) (string, error) {
 	return string(buf), nil
 }
 
-func readLengthWithEncoding(r *bufio.Reader) (int, bool, error) {
+func readLengthWithEncoding(r bufReader) (int, bool, error) {
 	first, err := r.ReadByte()
 
 	if err != nil {
@@ -215,12 +208,12 @@ func readLengthWithEncoding(r *bufio.Reader) (int, bool, error) {
 	return 0, false, LengthEncodingError{Encoding: enc}
 }
 
-func readLength(r *bufio.Reader) (int, error) {
+func readLength(r bufReader) (int, error) {
 	length, _, err := readLengthWithEncoding(r)
 	return length, err
 }
 
-func readString(r *bufio.Reader) (string, error) {
+func readString(r bufReader) (string, error) {
 	r, err := newStringReader(r)
 
 	if err != nil {
@@ -236,7 +229,7 @@ func readString(r *bufio.Reader) (string, error) {
 	return string(buf), nil
 }
 
-func readBinaryDouble(r *bufio.Reader) (float64, error) {
+func readBinaryDouble(r bufReader) (float64, error) {
 	v, err := readUint64(r)
 
 	if err != nil {
@@ -246,7 +239,7 @@ func readBinaryDouble(r *bufio.Reader) (float64, error) {
 	return math.Float64frombits(v), nil
 }
 
-func readFloat(r *bufio.Reader) (float64, error) {
+func readFloat(r bufReader) (float64, error) {
 	length, err := r.ReadByte()
 
 	if err != nil {
@@ -271,7 +264,7 @@ func readFloat(r *bufio.Reader) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
-func read24BitSignedNumber(r *bufio.Reader) (int, error) {
+func read24BitSignedNumber(r bufReader) (int, error) {
 	buf, err := readBytes(r, 3)
 
 	if err != nil {
@@ -281,7 +274,7 @@ func read24BitSignedNumber(r *bufio.Reader) (int, error) {
 	return int(int32(buf[2])<<24|int32(buf[1])<<16|int32(buf[0])<<8) >> 8, nil
 }
 
-func skipString(r *bufio.Reader) error {
+func skipString(r bufReader) error {
 	length, encoded, err := readLengthWithEncoding(r)
 
 	if err != nil {
@@ -323,12 +316,12 @@ func skipString(r *bufio.Reader) error {
 	return StringEncodingError{Encoding: length}
 }
 
-func skipBinaryDouble(r *bufio.Reader) error {
+func skipBinaryDouble(r bufReader) error {
 	_, err := r.Discard(8)
 	return err
 }
 
-func skipFloat(r *bufio.Reader) error {
+func skipFloat(r bufReader) error {
 	length, err := r.ReadByte()
 
 	if err != nil {

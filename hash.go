@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 
 	"github.com/tommy351/rdb-go/internal/convert"
@@ -35,7 +34,7 @@ type HashData struct {
 
 type hashValueReader struct{}
 
-func (hashValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
+func (hashValueReader) ReadValue(r bufReader) (interface{}, error) {
 	key, err := readString(r)
 
 	if err != nil {
@@ -87,7 +86,7 @@ func (hashMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type hashZipListValueReader struct{}
 
-func (hashZipListValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
+func (hashZipListValueReader) ReadValue(r bufReader) (interface{}, error) {
 	key, err := readZipListEntry(r)
 
 	if err != nil {

@@ -1,17 +1,16 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 )
 
 type intSetIterator struct {
 	DataKey DataKey
-	Reader  *bufio.Reader
+	Reader  bufReader
 	Mapper  collectionMapper
 
-	r        *bufio.Reader
+	r        bufReader
 	done     bool
 	encoding uint32
 	index    int

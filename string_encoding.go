@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -10,11 +9,7 @@ import (
 	lzf "github.com/zhuyie/golzf"
 )
 
-func newBufReaderFromString(s string) *bufio.Reader {
-	return newBufReader(bytes.NewReader([]byte(s)))
-}
-
-func newStringReader(r *bufio.Reader) (*bufio.Reader, error) {
+func newStringReader(r bufReader) (bufReader, error) {
 	length, encoded, err := readLengthWithEncoding(r)
 
 	if err != nil {
@@ -22,7 +17,7 @@ func newStringReader(r *bufio.Reader) (*bufio.Reader, error) {
 	}
 
 	if !encoded {
-		return newBufReader(io.LimitReader(r, int64(length))), nil
+		return newLimitedBufReader(r, length), nil
 	}
 
 	switch length {
@@ -66,7 +61,7 @@ func newStringReader(r *bufio.Reader) (*bufio.Reader, error) {
 	return nil, StringEncodingError{Encoding: length}
 }
 
-func readLZF(r *bufio.Reader) ([]byte, error) {
+func readLZF(r bufReader) ([]byte, error) {
 	compressedLen, err := readLength(r)
 
 	if err != nil {

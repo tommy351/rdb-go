@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bufio"
 	"fmt"
 
 	"github.com/tommy351/rdb-go/internal/convert"
@@ -74,7 +73,7 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 type listZipListValueReader struct{}
 
-func (listZipListValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
+func (listZipListValueReader) ReadValue(r bufReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
 
 	if err != nil {

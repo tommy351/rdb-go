@@ -1,7 +1,6 @@
 package rdb
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -62,7 +61,7 @@ var (
 type Parser struct {
 	KeyFilter func(key *DataKey) bool
 
-	reader      *bufio.Reader
+	reader      bufReader
 	initialized bool
 	db          int
 	expiry      *time.Time
