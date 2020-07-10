@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -8,14 +9,14 @@ import (
 
 type intSetIterator struct {
 	DataKey DataKey
-	Reader  io.Reader
+	Reader  *bufio.Reader
 	Mapper  collectionMapper
 
-	buf      *bytes.Buffer
+	buf      *bufio.Reader
 	done     bool
 	encoding uint32
-	index    int64
-	length   int64
+	index    int
+	length   int
 	values   []interface{}
 }
 
@@ -31,7 +32,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
-		i.buf = bytes.NewBuffer(buf)
+		i.buf = bufio.NewReader(bytes.NewReader(buf))
 
 		if i.encoding, err = readUint32(i.buf); err != nil {
 			return nil, fmt.Errorf("failed to read intset encoding: %w", err)
@@ -43,7 +44,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to read intset length: %w", err)
 		}
 
-		i.length = int64(length)
+		i.length = int(length)
 
 		head, err := i.Mapper.MapHead(&collectionHead{
 			DataKey: i.DataKey,
@@ -58,8 +59,6 @@ func (i *intSetIterator) Next() (interface{}, error) {
 	}
 
 	if i.index == i.length {
-		i.buf.Reset()
-
 		i.done = true
 		i.buf = nil
 

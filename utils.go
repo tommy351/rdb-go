@@ -1,74 +1,108 @@
 package rdb
 
 import (
+	"bufio"
 	"encoding/binary"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"strconv"
 	"time"
 
-	"github.com/tommy351/rdb-go/internal/convert"
 	lzf "github.com/zhuyie/golzf"
 )
 
-func readByte(r io.Reader) (byte, error) {
-	buf := make([]byte, 1)
+func readUint16(r *bufio.Reader) (uint16, error) {
+	buf, err := readBytes(r, 2)
 
-	if _, err := io.ReadFull(r, buf); err != nil {
+	if err != nil {
 		return 0, err
 	}
 
-	return buf[0], nil
+	return binary.LittleEndian.Uint16(buf), nil
 }
 
-func readUint16(r io.Reader) (value uint16, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readUint32(r *bufio.Reader) (uint32, error) {
+	buf, err := readBytes(r, 4)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.LittleEndian.Uint32(buf), nil
 }
 
-func readUint32(r io.Reader) (value uint32, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readUint64(r *bufio.Reader) (uint64, error) {
+	buf, err := readBytes(r, 8)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.LittleEndian.Uint64(buf), nil
 }
 
-func readUint64(r io.Reader) (value uint64, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readUint32BE(r *bufio.Reader) (uint32, error) {
+	buf, err := readBytes(r, 4)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.BigEndian.Uint32(buf), nil
 }
 
-func readUint32BE(r io.Reader) (value uint32, err error) {
-	err = binary.Read(r, binary.BigEndian, &value)
-	return
+func readUint64BE(r *bufio.Reader) (uint64, error) {
+	buf, err := readBytes(r, 8)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.BigEndian.Uint64(buf), nil
 }
 
-func readUint64BE(r io.Reader) (value uint64, err error) {
-	err = binary.Read(r, binary.BigEndian, &value)
-	return
+func readInt8(r *bufio.Reader) (int8, error) {
+	b, err := r.ReadByte()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int8(b), nil
 }
 
-func readInt8(r io.Reader) (value int8, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readInt16(r *bufio.Reader) (int16, error) {
+	v, err := readUint16(r)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int16(v), nil
 }
 
-func readInt16(r io.Reader) (value int16, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readInt32(r *bufio.Reader) (int32, error) {
+	v, err := readUint32(r)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int32(v), nil
 }
 
-func readInt32(r io.Reader) (value int32, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readInt64(r *bufio.Reader) (int64, error) {
+	v, err := readUint64(r)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int64(v), nil
 }
 
-func readInt64(r io.Reader) (value int64, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
-}
-
-func readMillisecondsTime(r io.Reader) (*time.Time, error) {
+func readMillisecondsTime(r *bufio.Reader) (*time.Time, error) {
 	value, err := readUint64(r)
 
 	if err != nil {
@@ -78,7 +112,7 @@ func readMillisecondsTime(r io.Reader) (*time.Time, error) {
 	return timePtr(time.Unix(0, int64(value)*int64(time.Millisecond)).UTC()), nil
 }
 
-func readSecondsTime(r io.Reader) (*time.Time, error) {
+func readSecondsTime(r *bufio.Reader) (*time.Time, error) {
 	value, err := readUint32(r)
 
 	if err != nil {
@@ -92,48 +126,52 @@ func timePtr(t time.Time) *time.Time {
 	return &t
 }
 
-func readBytes(r io.Reader, length int64) ([]byte, error) {
-	buf := make([]byte, length)
+func readBytes(r *bufio.Reader, n int) ([]byte, error) {
+	buf, err := r.Peek(n)
 
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return nil, fmt.Errorf("failed to read bytes by length %d: %w", length, err)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read bytes by length %d: %w", n, err)
+	}
+
+	if _, err := r.Discard(len(buf)); err != nil {
+		return nil, fmt.Errorf("failed to discard bytes by length %d: %w", len(buf), err)
 	}
 
 	return buf, nil
 }
 
-func readStringByLength(r io.Reader, length int64) (string, error) {
-	buf, err := readBytes(r, length)
+func readStringByLength(r *bufio.Reader, n int) (string, error) {
+	buf, err := readBytes(r, n)
 
 	if err != nil {
 		return "", err
 	}
 
-	return convert.BytesToString(buf), nil
+	return string(buf), nil
 }
 
-func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
-	first, err := readByte(r)
+func readLengthWithEncoding(r *bufio.Reader) (int, bool, error) {
+	first, err := r.ReadByte()
 
 	if err != nil {
 		return 0, false, err
 	}
 
 	enc := (first & 0xc0) >> 6
-	data := int64(first & 0x3f)
+	data := int(first & 0x3f)
 
 	switch enc {
 	case len6Bit:
 		return data, false, nil
 
 	case len14Bit:
-		next, err := readByte(r)
+		next, err := r.ReadByte()
 
 		if err != nil {
 			return 0, false, nil
 		}
 
-		return (data << 8) | int64(next), false, nil
+		return (data << 8) | int(next), false, nil
 
 	case lenEncVal:
 		return data, true, nil
@@ -147,7 +185,7 @@ func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
 			return 0, false, err
 		}
 
-		return int64(value), false, nil
+		return int(value), false, nil
 
 	case len64Bit:
 		value, err := readUint64BE(r)
@@ -156,18 +194,18 @@ func readLengthWithEncoding(r io.Reader) (int64, bool, error) {
 			return 0, false, err
 		}
 
-		return int64(value), false, nil
+		return int(value), false, nil
 	}
 
 	return 0, false, LengthEncodingError{Encoding: enc}
 }
 
-func readLength(r io.Reader) (int64, error) {
+func readLength(r *bufio.Reader) (int, error) {
 	length, _, err := readLengthWithEncoding(r)
 	return length, err
 }
 
-func readStringEncoding(r io.Reader) ([]byte, error) {
+func readStringEncoding(r *bufio.Reader) ([]byte, error) {
 	length, encoded, err := readLengthWithEncoding(r)
 
 	if err != nil {
@@ -213,7 +251,7 @@ func readStringEncoding(r io.Reader) ([]byte, error) {
 	return nil, StringEncodingError{Encoding: length}
 }
 
-func readLZF(r io.Reader) ([]byte, error) {
+func readLZF(r *bufio.Reader) ([]byte, error) {
 	compressedLen, err := readLength(r)
 
 	if err != nil {
@@ -241,23 +279,28 @@ func readLZF(r io.Reader) ([]byte, error) {
 	return decompressedBuf, nil
 }
 
-func readString(r io.Reader) (string, error) {
+func readString(r *bufio.Reader) (string, error) {
 	buf, err := readStringEncoding(r)
 
 	if err != nil {
 		return "", err
 	}
 
-	return convert.BytesToString(buf), nil
+	return string(buf), nil
 }
 
-func readBinaryDouble(r io.Reader) (value float64, err error) {
-	err = binary.Read(r, binary.LittleEndian, &value)
-	return
+func readBinaryDouble(r *bufio.Reader) (float64, error) {
+	v, err := readUint64(r)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return math.Float64frombits(v), nil
 }
 
-func readFloat(r io.Reader) (float64, error) {
-	length, err := readByte(r)
+func readFloat(r *bufio.Reader) (float64, error) {
+	length, err := r.ReadByte()
 
 	if err != nil {
 		return 0, err
@@ -272,7 +315,7 @@ func readFloat(r io.Reader) (float64, error) {
 		return math.Inf(-1), nil
 	}
 
-	s, err := readStringByLength(r, int64(length))
+	s, err := readStringByLength(r, int(length))
 
 	if err != nil {
 		return 0, err
@@ -281,25 +324,17 @@ func readFloat(r io.Reader) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
-func read24BitSignedNumber(r io.Reader) (int, error) {
-	buf := make([]byte, 3)
+func read24BitSignedNumber(r *bufio.Reader) (int, error) {
+	buf, err := readBytes(r, 3)
 
-	if _, err := io.ReadFull(r, buf); err != nil {
+	if err != nil {
 		return 0, err
 	}
 
 	return int(int32(buf[2])<<24|int32(buf[1])<<16|int32(buf[0])<<8) >> 8, nil
 }
 
-func skipBytes(r io.Reader, length int64) error {
-	if _, err := io.CopyN(ioutil.Discard, r, length); err != nil {
-		return fmt.Errorf("failed to skip %d bytes: %w", length, err)
-	}
-
-	return nil
-}
-
-func skipString(r io.Reader) error {
+func skipString(r *bufio.Reader) error {
 	length, encoded, err := readLengthWithEncoding(r)
 
 	if err != nil {
@@ -307,16 +342,20 @@ func skipString(r io.Reader) error {
 	}
 
 	if !encoded {
-		return skipBytes(r, length)
+		_, err := r.Discard(length)
+		return err
 	}
 
 	switch length {
 	case encInt8:
-		return skipBytes(r, 1)
+		_, err := r.Discard(1)
+		return err
 	case encInt16:
-		return skipBytes(r, 2)
+		_, err := r.Discard(2)
+		return err
 	case encInt32:
-		return skipBytes(r, 4)
+		_, err := r.Discard(4)
+		return err
 	case encLZF:
 		// Read compressed length
 		cLength, err := readLength(r)
@@ -330,25 +369,29 @@ func skipString(r io.Reader) error {
 			return err
 		}
 
-		return skipBytes(r, cLength)
+		_, err = r.Discard(cLength)
+		return err
 	}
 
 	return StringEncodingError{Encoding: length}
 }
 
-func skipBinaryDouble(r io.Reader) error {
-	return skipBytes(r, 8)
+func skipBinaryDouble(r *bufio.Reader) error {
+	_, err := r.Discard(8)
+	return err
 }
 
-func skipFloat(r io.Reader) error {
-	length, err := readByte(r)
+func skipFloat(r *bufio.Reader) error {
+	length, err := r.ReadByte()
 
 	if err != nil {
 		return err
 	}
 
 	if length < 253 {
-		return skipBytes(r, int64(length))
+		if _, err := r.Discard(int(length)); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -1,13 +1,15 @@
 package rdb
 
-import "io"
+import (
+	"bufio"
+)
 
 type valueReader interface {
-	ReadValue(r io.Reader) (interface{}, error)
+	ReadValue(r *bufio.Reader) (interface{}, error)
 }
 
 type stringValueReader struct{}
 
-func (stringValueReader) ReadValue(r io.Reader) (interface{}, error) {
+func (stringValueReader) ReadValue(r *bufio.Reader) (interface{}, error) {
 	return readString(r)
 }

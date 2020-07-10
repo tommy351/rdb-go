@@ -10,14 +10,14 @@ import (
 // is read first time.
 type SetHead struct {
 	DataKey
-	Length int64
+	Length int
 }
 
 // SetEntry is returned when a new set entry is read.
 type SetEntry struct {
 	DataKey
-	Index  int64
-	Length int64
+	Index  int
+	Length int
 	Value  string
 }
 

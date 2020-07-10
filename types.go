@@ -8,13 +8,13 @@ type iterator interface {
 
 type collectionHead struct {
 	DataKey DataKey
-	Length  int64
+	Length  int
 }
 
 type collectionEntry struct {
 	DataKey DataKey
-	Index   int64
-	Length  int64
+	Index   int
+	Length  int
 	Value   interface{}
 }
 
@@ -35,13 +35,13 @@ type Aux struct {
 }
 
 type DatabaseSize struct {
-	Size   int64
-	Expire int64
+	Size   int
+	Expire int
 }
 
 // DataKey contains the database, the key and the expiry of data.
 type DataKey struct {
-	Database int64
+	Database int
 	Key      string
 	Expiry   *time.Time
 }

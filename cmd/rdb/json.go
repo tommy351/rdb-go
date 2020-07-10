@@ -10,10 +10,10 @@ import (
 )
 
 type JSONPrinter struct {
-	db         int64
-	writer     io.Writer
+	db         int
 	keyIndex   int
 	entryIndex int
+	writer     io.Writer
 }
 
 func NewJSONPrinter(w io.Writer) *JSONPrinter {

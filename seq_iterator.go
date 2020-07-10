@@ -1,18 +1,19 @@
 package rdb
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 )
 
 type seqIterator struct {
 	DataKey     DataKey
-	Reader      io.Reader
+	Reader      *bufio.Reader
 	ValueReader valueReader
 	Mapper      collectionMapper
 
-	index       int64
-	length      int64
+	index       int
+	length      int
 	values      []interface{}
 	initialized bool
 	done        bool

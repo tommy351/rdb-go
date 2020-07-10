@@ -1,18 +1,19 @@
 package rdb
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 )
 
 type quickListIterator struct {
 	DataKey     DataKey
-	Reader      io.Reader
+	Reader      *bufio.Reader
 	ValueReader valueReader
 	Mapper      collectionMapper
 
-	index       int64
-	length      int64
+	index       int
+	length      int
 	initialized bool
 	done        bool
 	values      []interface{}
