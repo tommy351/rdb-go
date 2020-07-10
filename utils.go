@@ -5,12 +5,17 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"strconv"
 	"time"
-
-	lzf "github.com/zhuyie/golzf"
 )
+
+const defaultBufSize = 4096
+
+func newBufReader(r io.Reader) *bufio.Reader {
+	return bufio.NewReaderSize(r, defaultBufSize)
+}
 
 func readUint16(r *bufio.Reader) (uint16, error) {
 	buf, err := readBytes(r, 2)
@@ -127,6 +132,16 @@ func timePtr(t time.Time) *time.Time {
 }
 
 func readBytes(r *bufio.Reader, n int) ([]byte, error) {
+	if n > defaultBufSize {
+		buf := make([]byte, n)
+
+		if _, err := io.ReadFull(r, buf); err != nil {
+			return nil, err
+		}
+
+		return buf, nil
+	}
+
 	buf, err := r.Peek(n)
 
 	if err != nil {
@@ -205,82 +220,14 @@ func readLength(r *bufio.Reader) (int, error) {
 	return length, err
 }
 
-func readStringEncoding(r *bufio.Reader) ([]byte, error) {
-	length, encoded, err := readLengthWithEncoding(r)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if !encoded {
-		return readBytes(r, length)
-	}
-
-	switch length {
-	case encInt8:
-		value, err := readInt8(r)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return []byte(strconv.FormatInt(int64(value), 10)), nil
-
-	case encInt16:
-		value, err := readInt16(r)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return []byte(strconv.FormatInt(int64(value), 10)), nil
-
-	case encInt32:
-		value, err := readInt32(r)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return []byte(strconv.FormatInt(int64(value), 10)), nil
-
-	case encLZF:
-		return readLZF(r)
-	}
-
-	return nil, StringEncodingError{Encoding: length}
-}
-
-func readLZF(r *bufio.Reader) ([]byte, error) {
-	compressedLen, err := readLength(r)
-
-	if err != nil {
-		return nil, err
-	}
-
-	decompressedLen, err := readLength(r)
-
-	if err != nil {
-		return nil, err
-	}
-
-	compressedBuf := make([]byte, compressedLen)
-
-	if _, err := io.ReadFull(r, compressedBuf); err != nil {
-		return nil, err
-	}
-
-	decompressedBuf := make([]byte, decompressedLen)
-
-	if _, err := lzf.Decompress(compressedBuf, decompressedBuf); err != nil {
-		return nil, fmt.Errorf("failed to decompress LZF: %w", err)
-	}
-
-	return decompressedBuf, nil
-}
-
 func readString(r *bufio.Reader) (string, error) {
-	buf, err := readStringEncoding(r)
+	r, err := newStringReader(r)
+
+	if err != nil {
+		return "", err
+	}
+
+	buf, err := ioutil.ReadAll(r)
 
 	if err != nil {
 		return "", err

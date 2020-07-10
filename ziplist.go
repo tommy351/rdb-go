@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 )
@@ -14,7 +13,7 @@ type zipListIterator struct {
 	Mapper      collectionMapper
 	ValueLength int
 
-	buf    *bufio.Reader
+	sr     *bufio.Reader
 	index  int
 	length int
 	done   bool
@@ -26,20 +25,20 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		return nil, io.EOF
 	}
 
-	if z.buf == nil {
-		buf, err := readStringEncoding(z.Reader)
+	if z.sr == nil {
+		sr, err := newStringReader(z.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read ziplist buffer: %w", err)
 		}
 
-		z.buf = bufio.NewReader(bytes.NewReader(buf))
+		z.sr = sr
 
-		if _, err := readUint32(z.buf); err != nil {
+		if _, err := readUint32(z.sr); err != nil {
 			return nil, fmt.Errorf("failed to read ziplist zlbytes: %w", err)
 		}
 
-		if _, err := readUint32(z.buf); err != nil {
+		if _, err := readUint32(z.sr); err != nil {
 			return nil, fmt.Errorf("failed to ziplist tail offset: %w", err)
 		}
 
@@ -54,7 +53,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	}
 
 	if z.index == z.length {
-		end, err := z.buf.ReadByte()
+		end, err := z.sr.ReadByte()
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read ziplist end: %w", err)
@@ -65,7 +64,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		}
 
 		z.done = true
-		z.buf = nil
+		z.sr = nil
 
 		return z.Mapper.MapSlice(&collectionSlice{
 			DataKey: z.DataKey,
@@ -73,7 +72,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		})
 	}
 
-	value, err := z.ValueReader.ReadValue(z.buf)
+	value, err := z.ValueReader.ReadValue(z.sr)
 
 	if err != nil {
 		return nil, err
@@ -97,7 +96,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 }
 
 func (z *zipListIterator) readLength() (int, error) {
-	value, err := readUint16(z.buf)
+	value, err := readUint16(z.sr)
 
 	if err != nil {
 		return 0, err

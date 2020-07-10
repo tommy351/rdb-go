@@ -2,7 +2,6 @@ package rdb
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 )
@@ -12,7 +11,7 @@ type intSetIterator struct {
 	Reader  *bufio.Reader
 	Mapper  collectionMapper
 
-	buf      *bufio.Reader
+	r        *bufio.Reader
 	done     bool
 	encoding uint32
 	index    int
@@ -25,20 +24,20 @@ func (i *intSetIterator) Next() (interface{}, error) {
 		return nil, io.EOF
 	}
 
-	if i.buf == nil {
-		buf, err := readStringEncoding(i.Reader)
+	if i.r == nil {
+		sr, err := newStringReader(i.Reader)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
-		i.buf = bufio.NewReader(bytes.NewReader(buf))
+		i.r = sr
 
-		if i.encoding, err = readUint32(i.buf); err != nil {
+		if i.encoding, err = readUint32(i.r); err != nil {
 			return nil, fmt.Errorf("failed to read intset encoding: %w", err)
 		}
 
-		length, err := readUint32(i.buf)
+		length, err := readUint32(i.r)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset length: %w", err)
@@ -60,7 +59,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 
 	if i.index == i.length {
 		i.done = true
-		i.buf = nil
+		i.r = nil
 
 		slice, err := i.Mapper.MapSlice(&collectionSlice{
 			DataKey: i.DataKey,
@@ -100,11 +99,11 @@ func (i *intSetIterator) Next() (interface{}, error) {
 func (i *intSetIterator) readValue() (interface{}, error) {
 	switch i.encoding {
 	case 8:
-		return readInt64(i.buf)
+		return readInt64(i.r)
 	case 4:
-		return readInt32(i.buf)
+		return readInt32(i.r)
 	case 2:
-		return readInt16(i.buf)
+		return readInt16(i.r)
 	}
 
 	return nil, IntSetEncodingError{Encoding: i.encoding}

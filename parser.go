@@ -74,7 +74,7 @@ type Parser struct {
 // NewParser returns a new Parser to read from r.
 func NewParser(r io.Reader) *Parser {
 	return &Parser{
-		reader: bufio.NewReader(r),
+		reader: newBufReader(r),
 		db:     -1,
 	}
 }
