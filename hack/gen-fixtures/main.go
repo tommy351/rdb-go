@@ -58,6 +58,22 @@ func main() {
 		pipe.RPush("quicklist", values...)
 		return nil
 	})
+
+	if err := client.ConfigSet("rdbcompression", "no").Err(); err != nil {
+		panic(err)
+	}
+
+	makeRDB(dataDir, client, "big_values", func(pipe redis.Pipeliner) error {
+		for _, n := range []int{20, 4097, 4095, 40} {
+			pipe.Set(fmt.Sprintf("%dbits", n), makeString(n), 0)
+		}
+
+		return nil
+	})
+
+	if err := client.ConfigSet("rdbcompression", "yes").Err(); err != nil {
+		panic(err)
+	}
 }
 
 func startRedisContainer(port int, volume string) (string, error) {
@@ -145,4 +161,20 @@ func copyFile(src, dst string) error {
 	}
 
 	return nil
+}
+
+func makeString(n int) string {
+	var builder strings.Builder
+
+	for builder.Len() < n {
+		for i := byte(0x21); i <= 0x7e; i++ {
+			builder.WriteByte(i)
+
+			if builder.Len() >= n {
+				return builder.String()
+			}
+		}
+	}
+
+	return builder.String()
 }
