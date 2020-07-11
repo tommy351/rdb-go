@@ -31,7 +31,7 @@ func (z *zipListIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to read ziplist buffer: %w", err)
 		}
 
-		z.buf = newByteSliceReader(buf)
+		z.buf = newSliceReader(buf)
 
 		if _, err := readUint32(z.buf); err != nil {
 			return nil, fmt.Errorf("failed to read ziplist zlbytes: %w", err)

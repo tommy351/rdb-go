@@ -10,19 +10,29 @@ type byteReader interface {
 	ReadBytes(n int) ([]byte, error)
 }
 
-type byteSliceReader struct {
+type sliceReader struct {
 	data   []byte
 	offset int
 }
 
-func newByteSliceReader(data []byte) *byteSliceReader {
-	return &byteSliceReader{
+func newSliceReader(data []byte) *sliceReader {
+	return &sliceReader{
 		data: data,
 	}
 }
 
-func (b *byteSliceReader) ReadBytes(n int) ([]byte, error) {
+func (b *sliceReader) ReadBytes(n int) ([]byte, error) {
 	offset := b.offset
+	remaining := len(b.data) - offset
+
+	if remaining <= 0 {
+		return nil, io.EOF
+	}
+
+	if remaining < n {
+		n = remaining
+	}
+
 	b.offset += n
 	return b.data[offset : offset+n], nil
 }
@@ -45,12 +55,17 @@ func (b *bufferReader) ReadBytes(n int) ([]byte, error) {
 	remaining := b.length - b.offset
 
 	if n > cap(b.buf) {
+		// Allocate a new []byte for the result
 		buf := make([]byte, n)
+
+		// Copy the remaining data to the result
 		copy(buf, b.buf[b.offset:b.length])
 
+		// Reset the length and the offset because the buffer are copied to the result
 		b.length = 0
 		b.offset = 0
 
+		// Read the data into the result
 		if _, err := io.ReadFull(b.r, buf[remaining:cap(buf)]); err != nil {
 			return nil, err
 		}
@@ -64,6 +79,7 @@ func (b *bufferReader) ReadBytes(n int) ([]byte, error) {
 		b.length -= b.offset
 		b.offset = 0
 
+		// Read the buffer to its capacity
 		read, err := io.ReadAtLeast(b.r, b.buf[remaining:cap(b.buf)], n-remaining)
 
 		if err != nil {

@@ -29,7 +29,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("zipmap string read error: %w", err)
 		}
 
-		z.buf = newByteSliceReader(buf)
+		z.buf = newSliceReader(buf)
 
 		length, err := readByte(z.buf)
 

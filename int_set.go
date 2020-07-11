@@ -30,7 +30,7 @@ func (i *intSetIterator) Next() (interface{}, error) {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
-		i.buf = newByteSliceReader(buf)
+		i.buf = newSliceReader(buf)
 
 		if i.encoding, err = readUint32(i.buf); err != nil {
 			return nil, fmt.Errorf("failed to read intset encoding: %w", err)
