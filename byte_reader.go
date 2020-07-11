@@ -4,7 +4,10 @@ import (
 	"io"
 )
 
-const defaultBufferSize = 4096
+const (
+	maxBufferSize = 4096
+	minReadSize   = 1024
+)
 
 type byteReader interface {
 	ReadBytes(n int) ([]byte, error)
@@ -46,51 +49,90 @@ type bufferReader struct {
 
 func newBufferReader(r io.Reader) *bufferReader {
 	return &bufferReader{
-		r:   r,
-		buf: make([]byte, defaultBufferSize),
+		r: r,
 	}
 }
 
 func (b *bufferReader) ReadBytes(n int) ([]byte, error) {
-	remaining := b.length - b.offset
-
-	if n > cap(b.buf) {
-		// Allocate a new []byte for the result
-		buf := make([]byte, n)
-
-		// Copy the remaining data to the result
-		copy(buf, b.buf[b.offset:b.length])
-
-		// Reset the length and the offset because the buffer are copied to the result
-		b.length = 0
-		b.offset = 0
-
-		// Read the data into the result
-		if _, err := io.ReadFull(b.r, buf[remaining:cap(buf)]); err != nil {
-			return nil, err
-		}
-
-		return buf, nil
+	if n > maxBufferSize {
+		return b.readIntoNewBuffer(n)
 	}
 
-	if remaining < n {
-		// Move the remaining data to the front
-		copy(b.buf, b.buf[b.offset:b.length])
-		b.length -= b.offset
-		b.offset = 0
-
-		// Read the buffer to its capacity
-		read, err := io.ReadAtLeast(b.r, b.buf[remaining:cap(b.buf)], n-remaining)
-
-		if err != nil {
+	if b.remaining() < n {
+		if err := b.fill(n); err != nil {
 			return nil, err
 		}
-
-		b.length += read
 	}
 
 	offset := b.offset
 	b.offset += n
 
 	return b.buf[offset : offset+n], nil
+}
+
+func (b *bufferReader) remaining() int {
+	return b.length - b.offset
+}
+
+func (b *bufferReader) readIntoNewBuffer(n int) ([]byte, error) {
+	// Allocate a new buffer for the result
+	buf := make([]byte, n)
+
+	// Copy the remaining data to the result
+	copied := copy(buf, b.buf[b.offset:b.length])
+
+	// Reset the length and the offset
+	b.offset = 0
+	b.length = 0
+
+	// Read the data into the result
+	if _, err := io.ReadFull(b.r, buf[copied:]); err != nil {
+		return nil, err
+	}
+
+	return buf, nil
+}
+
+func (b *bufferReader) fill(n int) error {
+	remaining := b.remaining()
+	minRead := n - remaining
+	readSize := minRead
+
+	if readSize < minReadSize {
+		readSize = minReadSize
+	}
+
+	minCap := remaining + readSize
+
+	// If the buffer capacity is not enough for reading
+	if b.length+readSize > cap(b.buf) {
+		if minCap <= cap(b.buf) {
+			// Move the remaining data to the front if the buffer is enough
+			copy(b.buf, b.buf[b.offset:b.length])
+		} else {
+			bufSize := cap(b.buf) * 2
+
+			if bufSize < minCap || bufSize > maxBufferSize {
+				bufSize = minCap
+			}
+
+			// Otherwise, allocate a bigger buffer
+			buf := make([]byte, bufSize)
+			copy(buf, b.buf[b.offset:b.length])
+			b.buf = buf
+		}
+
+		b.length -= b.offset
+		b.offset = 0
+	}
+
+	// Read the buffer to its capacity
+	read, err := io.ReadAtLeast(b.r, b.buf[remaining:cap(b.buf)], minRead)
+
+	if err != nil {
+		return err
+	}
+
+	b.length += read
+	return nil
 }
