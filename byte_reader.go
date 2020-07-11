@@ -6,7 +6,7 @@ import (
 
 const (
 	maxBufferSize = 4096
-	minReadSize   = 1024
+	minReadSize   = 512
 )
 
 type byteReader interface {
