@@ -38,8 +38,8 @@ func BenchmarkParser(b *testing.B) {
 
 	for _, name := range []string{
 		"empty_database",
-		"multiple_databases",
-		"keys_with_expiry",
+		"parser_filters",
+		"linkedlist",
 	} {
 		name := name
 		b.Run(name, func(b *testing.B) {
