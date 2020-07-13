@@ -96,12 +96,7 @@ func (b *bufferReader) readIntoNewBuffer(n int) ([]byte, error) {
 func (b *bufferReader) fill(n int) error {
 	remaining := b.remaining()
 	minRead := n - remaining
-	readSize := minRead
-
-	if readSize < minReadSize {
-		readSize = minReadSize
-	}
-
+	readSize := max(minRead, minReadSize)
 	minCap := remaining + readSize
 
 	// If the buffer capacity is not enough for reading
@@ -110,13 +105,13 @@ func (b *bufferReader) fill(n int) error {
 			// Move the remaining data to the front if the buffer is enough
 			copy(b.buf, b.buf[b.offset:b.length])
 		} else {
-			bufSize := cap(b.buf) * 2
+			// Otherwise, allocate a bigger buffer
+			bufSize := max(cap(b.buf), minReadSize)
 
-			if bufSize < minCap || bufSize > maxBufferSize {
-				bufSize = minCap
+			for bufSize < minCap && bufSize < maxBufferSize {
+				bufSize *= 2
 			}
 
-			// Otherwise, allocate a bigger buffer
 			buf := make([]byte, bufSize)
 			copy(buf, b.buf[b.offset:b.length])
 			b.buf = buf
@@ -127,7 +122,7 @@ func (b *bufferReader) fill(n int) error {
 	}
 
 	// Read the buffer to its capacity
-	read, err := io.ReadAtLeast(b.r, b.buf[remaining:cap(b.buf)], minRead)
+	read, err := io.ReadAtLeast(b.r, b.buf[b.length:], minRead)
 
 	if err != nil {
 		return err
@@ -135,4 +130,12 @@ func (b *bufferReader) fill(n int) error {
 
 	b.length += read
 	return nil
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
 }
