@@ -22,6 +22,19 @@ func mustReadBytes(data []byte, err error) []byte {
 	return data
 }
 
+var _ = Describe("sliceReader", func() {
+	It("read data", func() {
+		buf := makeRandBuffer(10)
+		reader := newSliceReader(buf)
+
+		Expect(mustReadBytes(reader.ReadBytes(4))).To(Equal(buf[0:4]))
+		Expect(mustReadBytes(reader.ReadBytes(8))).To(Equal(buf[4:10]))
+
+		_, err := reader.ReadBytes(1)
+		Expect(err).To(Equal(io.EOF))
+	})
+})
+
 var _ = Describe("bufferReader", func() {
 	It("small data", func() {
 		buf := makeRandBuffer(4)
@@ -60,5 +73,14 @@ var _ = Describe("bufferReader", func() {
 		Expect(mustReadBytes(reader.ReadBytes(4097))).To(Equal(buf[3591:7688]))
 		Expect(mustReadBytes(reader.ReadBytes(200))).To(Equal(buf[7688:7888]))
 		Expect(mustReadBytes(reader.ReadBytes(100))).To(Equal(buf[7888:7988]))
+	})
+
+	It("move remaining data to the front", func() {
+		buf := makeRandBuffer(1200)
+		reader := newBufferReader(bytes.NewReader(buf))
+
+		Expect(mustReadBytes(reader.ReadBytes(200))).To(Equal(buf[0:200]))
+		Expect(mustReadBytes(reader.ReadBytes(400))).To(Equal(buf[200:600]))
+		Expect(mustReadBytes(reader.ReadBytes(600))).To(Equal(buf[600:1200]))
 	})
 })
