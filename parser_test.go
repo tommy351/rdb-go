@@ -162,7 +162,12 @@ var _ = Describe("Parser", func() {
 						}
 
 						Expect(err).NotTo(HaveOccurred())
-						expectKeyTo(data, Not(Equal(key)))
+
+						switch data.(type) {
+						case *Aux, *DatabaseSize:
+						default:
+							expectKeyTo(data, Not(Equal(key)))
+						}
 					}
 				})
 			})
@@ -176,6 +181,10 @@ var _ = Describe("Parser", func() {
 		// List
 		testExcludeKey("parser_filters", "l10")
 		testExcludeKey("linkedlist", "force_linkedlist")
+		testExcludeKey("quicklist", "quicklist")
+		testExcludeKey("ziplist_that_compresses_easily", "ziplist_compresses_easily")
+		testExcludeKey("ziplist_that_doesnt_compress", "ziplist_doesnt_compress")
+		testExcludeKey("ziplist_with_integers", "ziplist_with_integers")
 
 		// Set
 		testExcludeKey("parser_filters", "set1")
@@ -188,6 +197,7 @@ var _ = Describe("Parser", func() {
 		// Sorted set
 		testExcludeKey("parser_filters", "z1")
 		testExcludeKey("regular_sorted_set", "force_sorted_set")
+		testExcludeKey("sorted_set_as_ziplist", "sorted_set_as_ziplist")
 
 		Describe("Filter by database", func() {
 			var file *os.File

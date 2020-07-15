@@ -411,7 +411,7 @@ func (p *Parser) readData() (interface{}, error) {
 
 func (p *Parser) skipData() error {
 	switch *p.dataType {
-	case typeString, typeHashZipMap, typeListZipList, typeSetIntSet, typeZSetZipList, typeHashZipList, typeListQuickList:
+	case typeString, typeHashZipMap, typeListZipList, typeSetIntSet, typeZSetZipList, typeHashZipList:
 		return p.skipStrings(1)
 
 	case typeList, typeSet:
@@ -454,6 +454,15 @@ func (p *Parser) skipData() error {
 		}
 
 		return p.skipStrings(length * 2)
+
+	case typeListQuickList:
+		length, err := readLength(p.reader)
+
+		if err != nil {
+			return fmt.Errorf("failed to read quicklist length: %w", err)
+		}
+
+		return p.skipStrings(length)
 
 	case typeModule:
 		// TODO
