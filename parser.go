@@ -103,7 +103,6 @@ func (p *Parser) Next() (interface{}, error) {
 		p.initialized = true
 	}
 
-	//没处理一条数据前,把过期时间设置为空
 	p.expiry = nil
 
 	for {
