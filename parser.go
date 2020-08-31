@@ -103,6 +103,8 @@ func (p *Parser) Next() (interface{}, error) {
 		p.initialized = true
 	}
 
+	p.expiry = nil
+
 	for {
 		data, err := p.nextLoop()
 
