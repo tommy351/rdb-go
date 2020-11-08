@@ -151,12 +151,7 @@ func makeRDB(dataDir string, client *redis.Client, filename string, fn func(redi
 
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
-
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	return true
+	return !os.IsNotExist(err)
 }
 
 func copyFile(src, dst string) error {
