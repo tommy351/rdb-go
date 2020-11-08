@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -41,9 +42,8 @@ var (
 
 			if len(args) > 0 {
 				file, err := os.Open(args[0])
-
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to open file: %w", err)
 				}
 
 				defer file.Close()
@@ -81,18 +81,18 @@ func printParserData(reader io.Reader, printer Printer) error {
 	parser := rdb.NewParser(reader)
 
 	if err := printer.Start(); err != nil {
-		return err
+		return fmt.Errorf("printer start error: %w", err)
 	}
 
 	for {
 		data, err := parser.Next()
 
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
 		if err != nil {
-			return err
+			return fmt.Errorf("parser error: %w", err)
 		}
 
 		switch v := data.(type) {
@@ -125,7 +125,7 @@ func printParserData(reader io.Reader, printer Printer) error {
 		}
 
 		if err != nil {
-			return err
+			return fmt.Errorf("printer error: %w", err)
 		}
 	}
 

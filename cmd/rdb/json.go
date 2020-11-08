@@ -25,14 +25,14 @@ func NewJSONPrinter(w io.Writer) *JSONPrinter {
 
 func (j *JSONPrinter) print(args ...interface{}) error {
 	_, err := fmt.Fprint(j.writer, args...)
-	return err
+
+	return fmt.Errorf("failed to print json: %w", err)
 }
 
 func (j *JSONPrinter) printValue(value interface{}) error {
 	buf, err := json.Marshal(value)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal json: %w", err)
 	}
 
 	return j.print(convert.BytesToString(buf))
@@ -69,6 +69,7 @@ func (j *JSONPrinter) printKey(key *rdb.DataKey) error {
 	}
 
 	j.keyIndex++
+
 	return nil
 }
 
@@ -116,6 +117,7 @@ func (j *JSONPrinter) printArrayEntry(value interface{}) error {
 	}
 
 	j.entryIndex++
+
 	return nil
 }
 
@@ -153,6 +155,7 @@ func (j *JSONPrinter) printObjectEntry(key string, value interface{}) error {
 	}
 
 	j.entryIndex++
+
 	return nil
 }
 

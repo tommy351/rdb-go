@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -37,6 +38,7 @@ func (b *sliceReader) ReadBytes(n int) ([]byte, error) {
 	}
 
 	b.offset += n
+
 	return b.data[offset : offset+n], nil
 }
 
@@ -87,7 +89,7 @@ func (b *bufferReader) readIntoNewBuffer(n int) ([]byte, error) {
 
 	// Read the data into the result
 	if _, err := io.ReadFull(b.r, buf[copied:]); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read data into buffer: %w", err)
 	}
 
 	return buf, nil
@@ -123,12 +125,12 @@ func (b *bufferReader) fill(n int) error {
 
 	// Read the buffer to its capacity
 	read, err := io.ReadAtLeast(b.r, b.buf[b.length:], minRead)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read from buffer: %w", err)
 	}
 
 	b.length += read
+
 	return nil
 }
 

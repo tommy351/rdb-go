@@ -25,7 +25,6 @@ func (s *seqIterator) Next() (interface{}, error) {
 
 	if !s.initialized {
 		length, err := readLength(s.Reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read seq length: %w", err)
 		}
@@ -38,7 +37,6 @@ func (s *seqIterator) Next() (interface{}, error) {
 			DataKey: s.DataKey,
 			Length:  length,
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to map head in seq: %w", err)
 		}
@@ -53,7 +51,6 @@ func (s *seqIterator) Next() (interface{}, error) {
 			DataKey: s.DataKey,
 			Value:   s.values,
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to map slice in seq: %w", err)
 		}
@@ -62,7 +59,6 @@ func (s *seqIterator) Next() (interface{}, error) {
 	}
 
 	value, err := s.ValueReader.ReadValue(s.Reader)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read value from seq: %w", err)
 	}
@@ -73,7 +69,6 @@ func (s *seqIterator) Next() (interface{}, error) {
 		Length:  s.length,
 		Value:   value,
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to map entry in seq: %w", err)
 	}

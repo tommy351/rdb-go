@@ -26,7 +26,6 @@ func (z *zipListIterator) Next() (interface{}, error) {
 
 	if z.buf == nil {
 		buf, err := readStringEncoding(z.Reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read ziplist buffer: %w", err)
 		}
@@ -53,7 +52,6 @@ func (z *zipListIterator) Next() (interface{}, error) {
 
 	if z.index == z.length {
 		end, err := readByte(z.buf)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read ziplist end: %w", err)
 		}
@@ -72,9 +70,8 @@ func (z *zipListIterator) Next() (interface{}, error) {
 	}
 
 	value, err := z.ValueReader.ReadValue(z.buf)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read value: %w", err)
 	}
 
 	element, err := z.Mapper.MapEntry(&collectionEntry{
@@ -83,9 +80,8 @@ func (z *zipListIterator) Next() (interface{}, error) {
 		Length:  z.length,
 		Value:   value,
 	})
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to map entry: %w", err)
 	}
 
 	z.index++
@@ -96,7 +92,6 @@ func (z *zipListIterator) Next() (interface{}, error) {
 
 func (z *zipListIterator) readLength() (int, error) {
 	value, err := readUint16(z.buf)
-
 	if err != nil {
 		return 0, err
 	}
@@ -117,14 +112,12 @@ func readZipListEntry(r byteReader) (interface{}, error) {
 	var prevLen uint32
 
 	b, err := readByte(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read first byte of ziplist entry: %w", err)
 	}
 
 	if b == 254 {
 		i, err := readUint32(r)
-
 		if err != nil {
 			return nil, err
 		}
@@ -137,7 +130,6 @@ func readZipListEntry(r byteReader) (interface{}, error) {
 	_ = prevLen
 
 	header, err := readByte(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +139,6 @@ func readZipListEntry(r byteReader) (interface{}, error) {
 		return readStringByLength(r, int(header&0x3f))
 	case 1:
 		next, err := readByte(r)
-
 		if err != nil {
 			return nil, err
 		}
@@ -155,7 +146,6 @@ func readZipListEntry(r byteReader) (interface{}, error) {
 		return readStringByLength(r, int(header&0x3f)<<8|int(next))
 	case 2:
 		length, err := readUint32BE(r)
-
 		if err != nil {
 			return nil, err
 		}

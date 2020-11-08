@@ -39,7 +39,6 @@ func (listMapper) MapHead(head *collectionHead) (interface{}, error) {
 
 func (listMapper) MapEntry(element *collectionEntry) (interface{}, error) {
 	value, err := convert.String(element.Value)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert list value to string: %w", err)
 	}
@@ -60,7 +59,6 @@ func (listMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 	for i, v := range slice.Value {
 		value, err := convert.String(v)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert list value to string: %w", err)
 		}
@@ -75,7 +73,6 @@ type listZipListValueReader struct{}
 
 func (listZipListValueReader) ReadValue(r byteReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read list value from ziplist: %w", err)
 	}

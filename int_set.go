@@ -25,19 +25,16 @@ func (i *intSetIterator) Next() (interface{}, error) {
 
 	if i.buf == nil {
 		buf, err := readStringEncoding(i.Reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset buffer: %w", err)
 		}
 
 		i.buf = newSliceReader(buf)
-
 		if i.encoding, err = readUint32(i.buf); err != nil {
 			return nil, fmt.Errorf("failed to read intset encoding: %w", err)
 		}
 
 		length, err := readUint32(i.buf)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read intset length: %w", err)
 		}
@@ -48,7 +45,6 @@ func (i *intSetIterator) Next() (interface{}, error) {
 			DataKey: i.DataKey,
 			Length:  i.length,
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to map head in intset: %w", err)
 		}
@@ -64,7 +60,6 @@ func (i *intSetIterator) Next() (interface{}, error) {
 			DataKey: i.DataKey,
 			Value:   i.values,
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to map slice in intset: %w", err)
 		}
@@ -73,7 +68,6 @@ func (i *intSetIterator) Next() (interface{}, error) {
 	}
 
 	value, err := i.readValue()
-
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +78,6 @@ func (i *intSetIterator) Next() (interface{}, error) {
 		Length:  i.length,
 		Value:   value,
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to map entry in intset: %w", err)
 	}

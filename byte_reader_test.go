@@ -14,11 +14,13 @@ func makeRandBuffer(n int) []byte {
 	// nolint: gosec
 	_, err := rand.Read(buf)
 	Expect(err).NotTo(HaveOccurred())
+
 	return buf
 }
 
 func mustReadBytes(data []byte, err error) []byte {
 	Expect(err).NotTo(HaveOccurred())
+
 	return data
 }
 

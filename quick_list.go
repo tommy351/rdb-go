@@ -26,7 +26,6 @@ func (q *quickListIterator) Next() (interface{}, error) {
 
 	if !q.initialized {
 		length, err := readLength(q.Reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read quicklist buffer: %w", err)
 		}
@@ -38,7 +37,6 @@ func (q *quickListIterator) Next() (interface{}, error) {
 			DataKey: q.DataKey,
 			Length:  length,
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to map head in quicklist: %w", err)
 		}
@@ -53,7 +51,6 @@ func (q *quickListIterator) Next() (interface{}, error) {
 			DataKey: q.DataKey,
 			Value:   q.values,
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to map slice in quicklist: %w", err)
 		}
@@ -80,7 +77,6 @@ func (q *quickListIterator) MapHead(head *collectionHead) (interface{}, error) {
 
 func (q *quickListIterator) MapEntry(entry *collectionEntry) (interface{}, error) {
 	mappedEntry, err := q.Mapper.MapEntry(entry)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to map entry in quicklist: %w", err)
 	}

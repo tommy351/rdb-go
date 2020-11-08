@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"errors"
 	"fmt"
 	"io"
 )
@@ -24,7 +25,6 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 
 	if z.buf == nil {
 		buf, err := readStringEncoding(z.Reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("zipmap string read error: %w", err)
 		}
@@ -32,7 +32,6 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 		z.buf = newSliceReader(buf)
 
 		length, err := readByte(z.buf)
-
 		if err != nil {
 			return nil, fmt.Errorf("zipmap length read error: %w", err)
 		}
@@ -46,8 +45,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 	}
 
 	keyLength, err := z.readLength()
-
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		z.done = true
 		z.buf = nil
 
@@ -69,7 +67,7 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 
 	valueLength, err := z.readLength()
 
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return nil, UnexpectedZipMapEndError{Key: value.Index}
 	}
 
@@ -92,9 +90,8 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 		Length:  z.length,
 		Value:   value,
 	})
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("zipmap map entry error: %w", err)
 	}
 
 	z.index++
@@ -105,7 +102,6 @@ func (z *zipMapIterator) Next() (interface{}, error) {
 
 func (z *zipMapIterator) readLength() (int, error) {
 	first, err := readByte(z.buf)
-
 	if err != nil {
 		return 0, err
 	}
@@ -116,7 +112,6 @@ func (z *zipMapIterator) readLength() (int, error) {
 
 	if first == 254 {
 		length, err := readUint32(z.buf)
-
 		if err != nil {
 			return 0, err
 		}

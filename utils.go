@@ -12,9 +12,8 @@ import (
 
 func readByte(r byteReader) (byte, error) {
 	buf, err := r.ReadBytes(1)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readByte error: %w", err)
 	}
 
 	return buf[0], nil
@@ -22,9 +21,8 @@ func readByte(r byteReader) (byte, error) {
 
 func readUint16(r byteReader) (uint16, error) {
 	buf, err := r.ReadBytes(2)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readUint16 error: %w", err)
 	}
 
 	return binary.LittleEndian.Uint16(buf), nil
@@ -32,9 +30,8 @@ func readUint16(r byteReader) (uint16, error) {
 
 func readUint32(r byteReader) (uint32, error) {
 	buf, err := r.ReadBytes(4)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readUint32 error: %w", err)
 	}
 
 	return binary.LittleEndian.Uint32(buf), nil
@@ -42,9 +39,8 @@ func readUint32(r byteReader) (uint32, error) {
 
 func readUint64(r byteReader) (uint64, error) {
 	buf, err := r.ReadBytes(8)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readUint64 error: %w", err)
 	}
 
 	return binary.LittleEndian.Uint64(buf), nil
@@ -52,9 +48,8 @@ func readUint64(r byteReader) (uint64, error) {
 
 func readUint32BE(r byteReader) (uint32, error) {
 	buf, err := r.ReadBytes(4)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readUint32BE error: %w", err)
 	}
 
 	return binary.BigEndian.Uint32(buf), nil
@@ -62,9 +57,8 @@ func readUint32BE(r byteReader) (uint32, error) {
 
 func readUint64BE(r byteReader) (uint64, error) {
 	buf, err := r.ReadBytes(8)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readUint64BE error: %w", err)
 	}
 
 	return binary.BigEndian.Uint64(buf), nil
@@ -72,9 +66,8 @@ func readUint64BE(r byteReader) (uint64, error) {
 
 func readInt8(r byteReader) (int8, error) {
 	v, err := readByte(r)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readInt8 error: %w", err)
 	}
 
 	return int8(v), nil
@@ -82,9 +75,8 @@ func readInt8(r byteReader) (int8, error) {
 
 func readInt16(r byteReader) (int16, error) {
 	v, err := readUint16(r)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readInt16 error: %w", err)
 	}
 
 	return int16(v), nil
@@ -92,9 +84,8 @@ func readInt16(r byteReader) (int16, error) {
 
 func readInt32(r byteReader) (int32, error) {
 	v, err := readUint32(r)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readInt32 error: %w", err)
 	}
 
 	return int32(v), nil
@@ -102,9 +93,8 @@ func readInt32(r byteReader) (int32, error) {
 
 func readInt64(r byteReader) (int64, error) {
 	v, err := readUint64(r)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("readInt64 error: %w", err)
 	}
 
 	return int64(v), nil
@@ -112,9 +102,8 @@ func readInt64(r byteReader) (int64, error) {
 
 func readMillisecondsTime(r byteReader) (*time.Time, error) {
 	value, err := readUint64(r)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("readMillisecondsTime error: %w", err)
 	}
 
 	return timePtr(time.Unix(0, int64(value)*int64(time.Millisecond)).UTC()), nil
@@ -122,9 +111,8 @@ func readMillisecondsTime(r byteReader) (*time.Time, error) {
 
 func readSecondsTime(r byteReader) (*time.Time, error) {
 	value, err := readUint32(r)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("readSecondsTime error: %w", err)
 	}
 
 	return timePtr(time.Unix(int64(value), 0).UTC()), nil
@@ -136,9 +124,8 @@ func timePtr(t time.Time) *time.Time {
 
 func readStringByLength(r byteReader, length int) (string, error) {
 	buf, err := r.ReadBytes(length)
-
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("readStringByLength error (length=%d): %w", length, err)
 	}
 
 	return string(buf), nil
@@ -146,9 +133,8 @@ func readStringByLength(r byteReader, length int) (string, error) {
 
 func readLengthWithEncoding(r byteReader) (int, bool, error) {
 	first, err := readByte(r)
-
 	if err != nil {
-		return 0, false, err
+		return 0, false, fmt.Errorf("readLengthWithEncoding error: %w", err)
 	}
 
 	enc := (first & 0xc0) >> 6
@@ -160,7 +146,6 @@ func readLengthWithEncoding(r byteReader) (int, bool, error) {
 
 	case len14Bit:
 		next, err := readByte(r)
-
 		if err != nil {
 			return 0, false, nil
 		}
@@ -174,7 +159,6 @@ func readLengthWithEncoding(r byteReader) (int, bool, error) {
 	switch first {
 	case len32Bit:
 		value, err := readUint32BE(r)
-
 		if err != nil {
 			return 0, false, err
 		}
@@ -183,7 +167,6 @@ func readLengthWithEncoding(r byteReader) (int, bool, error) {
 
 	case len64Bit:
 		value, err := readUint64BE(r)
-
 		if err != nil {
 			return 0, false, err
 		}
@@ -196,12 +179,12 @@ func readLengthWithEncoding(r byteReader) (int, bool, error) {
 
 func readLength(r byteReader) (int, error) {
 	length, _, err := readLengthWithEncoding(r)
+
 	return length, err
 }
 
 func readStringEncoding(r byteReader) ([]byte, error) {
 	length, encoded, err := readLengthWithEncoding(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +196,6 @@ func readStringEncoding(r byteReader) ([]byte, error) {
 	switch length {
 	case encInt8:
 		value, err := readInt8(r)
-
 		if err != nil {
 			return nil, err
 		}
@@ -222,7 +204,6 @@ func readStringEncoding(r byteReader) ([]byte, error) {
 
 	case encInt16:
 		value, err := readInt16(r)
-
 		if err != nil {
 			return nil, err
 		}
@@ -231,7 +212,6 @@ func readStringEncoding(r byteReader) ([]byte, error) {
 
 	case encInt32:
 		value, err := readInt32(r)
-
 		if err != nil {
 			return nil, err
 		}
@@ -247,21 +227,18 @@ func readStringEncoding(r byteReader) ([]byte, error) {
 
 func readLZF(r byteReader) ([]byte, error) {
 	compressedLen, err := readLength(r)
-
 	if err != nil {
 		return nil, err
 	}
 
 	decompressedLen, err := readLength(r)
-
 	if err != nil {
 		return nil, err
 	}
 
 	compressedBuf, err := r.ReadBytes(compressedLen)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read compressed bytes: %w", err)
 	}
 
 	decompressedBuf := make([]byte, decompressedLen)
@@ -275,7 +252,6 @@ func readLZF(r byteReader) ([]byte, error) {
 
 func readString(r byteReader) (string, error) {
 	buf, err := readStringEncoding(r)
-
 	if err != nil {
 		return "", err
 	}
@@ -285,7 +261,6 @@ func readString(r byteReader) (string, error) {
 
 func readBinaryDouble(r byteReader) (float64, error) {
 	v, err := readUint64(r)
-
 	if err != nil {
 		return 0, err
 	}
@@ -295,7 +270,6 @@ func readBinaryDouble(r byteReader) (float64, error) {
 
 func readFloat(r byteReader) (float64, error) {
 	length, err := readByte(r)
-
 	if err != nil {
 		return 0, err
 	}
@@ -310,7 +284,6 @@ func readFloat(r byteReader) (float64, error) {
 	}
 
 	s, err := readStringByLength(r, int(length))
-
 	if err != nil {
 		return 0, err
 	}
@@ -320,9 +293,8 @@ func readFloat(r byteReader) (float64, error) {
 
 func read24BitSignedNumber(r byteReader) (int, error) {
 	buf, err := r.ReadBytes(3)
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("read24BitSignedNumber error: %w", err)
 	}
 
 	return int(int32(buf[2])<<24|int32(buf[1])<<16|int32(buf[0])<<8) >> 8, nil
@@ -339,7 +311,6 @@ func skipBytes(r byteReader, length int) error {
 
 func skipString(r byteReader) error {
 	length, encoded, err := readLengthWithEncoding(r)
-
 	if err != nil {
 		return fmt.Errorf("failed to read length: %w", err)
 	}
@@ -358,7 +329,6 @@ func skipString(r byteReader) error {
 	case encLZF:
 		// Read compressed length
 		cLength, err := readLength(r)
-
 		if err != nil {
 			return err
 		}
@@ -380,7 +350,6 @@ func skipBinaryDouble(r byteReader) error {
 
 func skipFloat(r byteReader) error {
 	length, err := readByte(r)
-
 	if err != nil {
 		return err
 	}

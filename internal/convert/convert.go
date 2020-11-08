@@ -19,6 +19,7 @@ func (c Error) Error() string {
 func Float64(value interface{}) (float64, error) {
 	v := reflect.ValueOf(value)
 
+	// nolint: exhaustive
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return float64(v.Int()), nil
@@ -36,6 +37,7 @@ func Float64(value interface{}) (float64, error) {
 func String(value interface{}) (string, error) {
 	v := reflect.ValueOf(value)
 
+	// nolint: exhaustive
 	switch v.Kind() {
 	case reflect.String:
 		return v.String(), nil

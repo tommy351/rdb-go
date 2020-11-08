@@ -39,13 +39,11 @@ type sortedSetValueReader struct {
 
 func (z sortedSetValueReader) ReadValue(r byteReader) (interface{}, error) {
 	value, err := readString(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read zset value: %w", err)
 	}
 
 	score, err := z.readScore(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read zset score: %w", err)
 	}
@@ -99,25 +97,21 @@ type sortedSetZipListValueReader struct{}
 
 func (s sortedSetZipListValueReader) ReadValue(r byteReader) (interface{}, error) {
 	value, err := readZipListEntry(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read zset value from ziplist: %w", err)
 	}
 
 	score, err := readZipListEntry(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read zset score from ziplist: %w", err)
 	}
 
 	valueString, err := convert.String(value)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert zset value to string: %w", err)
 	}
 
 	scoreFloat, err := convert.Float64(score)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert zset score to float64: %w", err)
 	}

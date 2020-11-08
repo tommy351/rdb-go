@@ -38,7 +38,6 @@ func (setMapper) MapHead(head *collectionHead) (interface{}, error) {
 
 func (setMapper) MapEntry(element *collectionEntry) (interface{}, error) {
 	value, err := convert.String(element.Value)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert set value to string: %w", err)
 	}
@@ -59,7 +58,6 @@ func (setMapper) MapSlice(slice *collectionSlice) (interface{}, error) {
 
 	for i, v := range slice.Value {
 		value, err := convert.String(v)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert set value to string: %w", err)
 		}

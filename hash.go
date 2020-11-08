@@ -36,13 +36,11 @@ type hashValueReader struct{}
 
 func (hashValueReader) ReadValue(r byteReader) (interface{}, error) {
 	key, err := readString(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read hash key: %w", err)
 	}
 
 	value, err := readString(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read hash value: %w", err)
 	}
@@ -88,25 +86,21 @@ type hashZipListValueReader struct{}
 
 func (hashZipListValueReader) ReadValue(r byteReader) (interface{}, error) {
 	key, err := readZipListEntry(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read hash key from ziplist: %w", err)
 	}
 
 	value, err := readZipListEntry(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read hash value from ziplist: %w", err)
 	}
 
 	keyString, err := convert.String(key)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert hash key to string: %w", err)
 	}
 
 	valueString, err := convert.String(value)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert hash value to string: %w", err)
 	}

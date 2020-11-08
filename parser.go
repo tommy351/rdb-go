@@ -107,13 +107,12 @@ func (p *Parser) Next() (interface{}, error) {
 
 	for {
 		data, err := p.nextLoop()
-
 		if err != nil {
 			if errors.Is(err, errContinueLoop) {
 				continue
 			}
 
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 
@@ -128,7 +127,6 @@ func (p *Parser) Next() (interface{}, error) {
 
 func (p *Parser) verifyMagicString() error {
 	buf, err := p.reader.ReadBytes(len(magicString))
-
 	if err != nil {
 		return fmt.Errorf("failed to read magic string: %w", err)
 	}
@@ -142,13 +140,11 @@ func (p *Parser) verifyMagicString() error {
 
 func (p *Parser) verifyVersion() error {
 	s, err := readStringByLength(p.reader, 4)
-
 	if err != nil {
 		return fmt.Errorf("failed to read version: %w", err)
 	}
 
 	version, err := strconv.Atoi(s)
-
 	if err != nil {
 		return fmt.Errorf("invalid version %q: %w", s, err)
 	}
@@ -163,7 +159,6 @@ func (p *Parser) verifyVersion() error {
 func (p *Parser) nextLoop() (interface{}, error) {
 	if p.dataType != nil {
 		data, err := p.readData()
-
 		if err != nil {
 			return nil, err
 		}
@@ -172,7 +167,6 @@ func (p *Parser) nextLoop() (interface{}, error) {
 	}
 
 	dataType, err := readByte(p.reader)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read data type: %w", err)
 	}
@@ -215,13 +209,11 @@ func (p *Parser) nextLoop() (interface{}, error) {
 
 	case opCodeAux:
 		key, err := readString(p.reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read aux key: %w", err)
 		}
 
 		value, err := readString(p.reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read aux value: %w", err)
 		}
@@ -230,13 +222,11 @@ func (p *Parser) nextLoop() (interface{}, error) {
 
 	case opCodeResizeDB:
 		dbSize, err := readLength(p.reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read database size: %w", err)
 		}
 
 		expireSize, err := readLength(p.reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read expire size: %w", err)
 		}
@@ -276,20 +266,23 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		p.dataType = nil
+
 		return nil, errContinueLoop
 	}
 
 	if p.iterator != nil {
 		value, err := p.iterator.Next()
 
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			p.dataType = nil
+
 			p.iterator = nil
+
 			return nil, errContinueLoop
 		}
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("iterator error: %w", err)
 		}
 
 		return value, nil
@@ -298,12 +291,12 @@ func (p *Parser) readData() (interface{}, error) {
 	switch *p.dataType {
 	case typeString:
 		value, err := readString(p.reader)
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to read string: %w", err)
 		}
 
 		p.dataType = nil
+
 		return &StringData{DataKey: key, Value: value}, nil
 
 	case typeList:
@@ -418,7 +411,6 @@ func (p *Parser) skipData() error {
 
 	case typeList, typeSet:
 		length, err := readLength(p.reader)
-
 		if err != nil {
 			return fmt.Errorf("failed to read list length: %w", err)
 		}
@@ -427,7 +419,6 @@ func (p *Parser) skipData() error {
 
 	case typeZSet, typeZSet2:
 		length, err := readLength(p.reader)
-
 		if err != nil {
 			return fmt.Errorf("failed to read zset length: %w", err)
 		}
@@ -450,7 +441,6 @@ func (p *Parser) skipData() error {
 
 	case typeHash:
 		length, err := readLength(p.reader)
-
 		if err != nil {
 			return fmt.Errorf("failed to read hash length: %w", err)
 		}
@@ -459,7 +449,6 @@ func (p *Parser) skipData() error {
 
 	case typeListQuickList:
 		length, err := readLength(p.reader)
-
 		if err != nil {
 			return fmt.Errorf("failed to read quicklist length: %w", err)
 		}

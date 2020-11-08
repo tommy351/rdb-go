@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -54,7 +55,7 @@ var _ = Describe("Parser", func() {
 				for {
 					data, err := parser.Next()
 
-					if err == io.EOF {
+					if errors.Is(err, io.EOF) {
 						break
 					}
 
@@ -158,7 +159,7 @@ var _ = Describe("Parser", func() {
 					for {
 						data, err := parser.Next()
 
-						if err == io.EOF {
+						if errors.Is(err, io.EOF) {
 							break
 						}
 
@@ -214,7 +215,7 @@ var _ = Describe("Parser", func() {
 				for {
 					data, err := parser.Next()
 
-					if err == io.EOF {
+					if errors.Is(err, io.EOF) {
 						break
 					}
 

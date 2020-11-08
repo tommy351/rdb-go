@@ -20,13 +20,11 @@ import (
 
 func main() {
 	port, err := freeport.GetFreePort()
-
 	if err != nil {
 		panic(err)
 	}
 
 	dataDir, err := ioutil.TempDir("", "rdb-fixtures")
-
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +32,6 @@ func main() {
 	defer os.RemoveAll(dataDir)
 
 	redisID, err := startRedisContainer(port, dataDir)
-
 	if err != nil {
 		panic(err)
 	}
@@ -57,6 +54,7 @@ func main() {
 		}
 
 		pipe.RPush("quicklist", values...)
+
 		return nil
 	})
 
@@ -76,6 +74,7 @@ func main() {
 		pipe.Set("a0", "0", time.Hour)
 		pipe.Set("a1", "1", 0)
 		pipe.Set("a2", "2", time.Minute)
+
 		return nil
 	})
 
@@ -88,9 +87,8 @@ func startRedisContainer(port int, volume string) (string, error) {
 	log.Printf("Starting Redis container (port=%d)", port)
 
 	u, err := user.Current()
-
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get current user: %w", err)
 	}
 
 	var out bytes.Buffer
@@ -104,17 +102,19 @@ func startRedisContainer(port int, volume string) (string, error) {
 	cmd.Stdout = &out
 
 	if err := cmd.Run(); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to run command: %w", err)
 	}
 
 	id := strings.TrimSpace(out.String())
 
 	log.Printf("Redis container started: %s\n", id)
+
 	return id, nil
 }
 
 func stopDockerContainer(id string) error {
 	log.Printf("Stopping Docker container: %s\n", id)
+
 	return exec.Command("docker", "rm", "-f", id).Run()
 }
 
@@ -123,6 +123,7 @@ func makeRDB(dataDir string, client *redis.Client, filename string, fn func(redi
 
 	if fileExists(dst) {
 		log.Printf("Skip because file already exists: %s\n", filename)
+
 		return
 	}
 
@@ -151,32 +152,31 @@ func makeRDB(dataDir string, client *redis.Client, filename string, fn func(redi
 
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
+
 	return !os.IsNotExist(err)
 }
 
 func copyFile(src, dst string) error {
 	if err := os.MkdirAll(filepath.Dir(dst), os.ModePerm); err != nil {
-		return err
+		return fmt.Errorf("failed to make parent directories: %w", err)
 	}
 
 	srcFile, err := os.Open(src)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open source file: %w", err)
 	}
 
 	defer srcFile.Close()
 
 	dstFile, err := os.Create(dst)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create dest file: %w", err)
 	}
 
 	defer dstFile.Close()
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
-		return err
+		return fmt.Errorf("failed to copy file: %w", err)
 	}
 
 	return nil

@@ -9,4 +9,5 @@ linters:
     - funlen
     - wsl
     - testpackage
+    - exhaustivestruct
   fast: false

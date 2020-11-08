@@ -1,6 +1,7 @@
 package rdb
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -9,7 +10,6 @@ import (
 
 func ExampleParser_basic() {
 	file, err := os.Open("dump.rdb")
-
 	if err != nil {
 		panic(err)
 	}
@@ -20,8 +20,7 @@ func ExampleParser_basic() {
 
 	for {
 		data, err := parser.Next()
-
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
@@ -43,7 +42,6 @@ func ExampleParser_basic() {
 
 func ExampleParser_keyFilter() {
 	file, err := os.Open("dump.rdb")
-
 	if err != nil {
 		panic(err)
 	}

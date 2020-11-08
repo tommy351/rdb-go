@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,7 +12,6 @@ import (
 func BenchmarkParser(b *testing.B) {
 	benchmarkDumpFile := func(b *testing.B, name string) {
 		buf, err := ioutil.ReadFile(fmt.Sprintf("fixtures/%s.rdb", name))
-
 		if err != nil {
 			b.Error(err)
 		}
@@ -24,8 +24,7 @@ func BenchmarkParser(b *testing.B) {
 
 			for {
 				_, err := parser.Next()
-
-				if err == io.EOF {
+				if errors.Is(err, io.EOF) {
 					break
 				}
 
