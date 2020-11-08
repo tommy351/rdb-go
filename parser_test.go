@@ -76,6 +76,7 @@ var _ = Describe("Parser", func() {
 	testDumpFile("non_ascii_values")
 	testDumpFile("uncompressible_string_keys")
 	testDumpFile("big_values")
+	testDumpFile("multi_keys_with_expiry")
 
 	// List
 	testDumpFile("linkedlist")

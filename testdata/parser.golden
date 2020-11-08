@@ -24403,6 +24403,58 @@
  })
 }
 '''
+"Parser multi_keys_with_expiry should match the golden file" = '''
+([]interface {}) (len=9) {
+ (*rdb.Aux)({
+  Key: (string) (len=9) "redis-ver",
+  Value: (string) (len=5) "6.0.5"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=10) "redis-bits",
+  Value: (string) (len=2) "64"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=5) "ctime",
+  Value: (string) (len=10) "1604821021"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=8) "used-mem",
+  Value: (string) (len=6) "864992"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=12) "aof-preamble",
+  Value: (string) (len=1) "0"
+ }),
+ (*rdb.DatabaseSize)({
+  Size: (int) 3,
+  Expire: (int) 2
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=2) "a2",
+   Expiry: (*time.Time)(2020-11-08 07:38:01.405 +0000 UTC)
+  },
+  Value: (string) (len=1) "2"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=2) "a1",
+   Expiry: (*time.Time)(<nil>)
+  },
+  Value: (string) (len=1) "1"
+ }),
+ (*rdb.StringData)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=2) "a0",
+   Expiry: (*time.Time)(2020-11-08 08:37:01.405 +0000 UTC)
+  },
+  Value: (string) (len=1) "0"
+ })
+}
+'''
 "Parser multiple_databases should match the golden file" = '''
 ([]interface {}) (len=2) {
  (*rdb.StringData)({

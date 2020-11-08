@@ -12,6 +12,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/go-redis/redis/v7"
 	"github.com/phayes/freeport"
@@ -71,6 +72,13 @@ func main() {
 		return nil
 	})
 
+	makeRDB(dataDir, client, "multi_keys_with_expiry", func(pipe redis.Pipeliner) error {
+		pipe.Set("a0", "0", time.Hour)
+		pipe.Set("a1", "1", 0)
+		pipe.Set("a2", "2", time.Minute)
+		return nil
+	})
+
 	if err := client.ConfigSet("rdbcompression", "yes").Err(); err != nil {
 		panic(err)
 	}
@@ -111,6 +119,13 @@ func stopDockerContainer(id string) error {
 }
 
 func makeRDB(dataDir string, client *redis.Client, filename string, fn func(redis.Pipeliner) error) {
+	dst := filepath.Join("fixtures", filename+".rdb")
+
+	if fileExists(dst) {
+		log.Printf("Skip because file already exists: %s\n", filename)
+		return
+	}
+
 	log.Printf("Making RDB: %s\n", filename)
 
 	if err := client.FlushAll().Err(); err != nil {
@@ -126,13 +141,22 @@ func makeRDB(dataDir string, client *redis.Client, filename string, fn func(redi
 	}
 
 	src := filepath.Join(dataDir, "dump.rdb")
-	dst := filepath.Join("fixtures", filename+".rdb")
 
 	log.Printf("Writing RDB to %s\n", dst)
 
 	if err := copyFile(src, dst); err != nil {
 		panic(err)
 	}
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return true
 }
 
 func copyFile(src, dst string) error {
