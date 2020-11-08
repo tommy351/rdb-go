@@ -25,8 +25,11 @@ func NewJSONPrinter(w io.Writer) *JSONPrinter {
 
 func (j *JSONPrinter) print(args ...interface{}) error {
 	_, err := fmt.Fprint(j.writer, args...)
+	if err != nil {
+		return fmt.Errorf("failed to print json: %w", err)
+	}
 
-	return fmt.Errorf("failed to print json: %w", err)
+	return nil
 }
 
 func (j *JSONPrinter) printValue(value interface{}) error {

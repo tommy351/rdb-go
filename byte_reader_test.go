@@ -2,6 +2,7 @@ package rdb
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"math/rand"
 
@@ -33,7 +34,7 @@ var _ = Describe("sliceReader", func() {
 		Expect(mustReadBytes(reader.ReadBytes(8))).To(Equal(buf[4:10]))
 
 		_, err := reader.ReadBytes(1)
-		Expect(err).To(Equal(io.EOF))
+		Expect(errors.Is(err, io.EOF)).To(BeTrue())
 	})
 })
 
@@ -52,7 +53,7 @@ var _ = Describe("bufferReader", func() {
 
 		actual, err := reader.ReadBytes(5)
 		Expect(actual).To(BeNil())
-		Expect(err).To(Equal(io.ErrUnexpectedEOF))
+		Expect(errors.Is(err, io.ErrUnexpectedEOF)).To(BeTrue())
 	})
 
 	It("larger than max buffer size", func() {

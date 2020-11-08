@@ -6,7 +6,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/go-cmp v0.5.0 // indirect
-	github.com/onsi/ginkgo v1.14.0
+	github.com/onsi/ginkgo v1.14.2
 	github.com/onsi/gomega v1.10.1
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/spf13/cobra v1.0.0
