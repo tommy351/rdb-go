@@ -12,6 +12,7 @@ const (
 
 type byteReader interface {
 	ReadBytes(n int) ([]byte, error)
+	GetDecompressBuff(n int) []byte
 }
 
 type sliceReader struct {
@@ -42,11 +43,17 @@ func (b *sliceReader) ReadBytes(n int) ([]byte, error) {
 	return b.data[offset : offset+n], nil
 }
 
+func (b *sliceReader) GetDecompressBuff(n int) []byte {
+	return make([]byte, n)
+}
+
 type bufferReader struct {
 	r      io.Reader
 	offset int
 	length int
 	buf    []byte
+
+	decBuff []byte
 }
 
 func newBufferReader(r io.Reader) *bufferReader {
@@ -134,10 +141,37 @@ func (b *bufferReader) fill(n int) error {
 	return nil
 }
 
+func (b *bufferReader) GetDecompressBuff(n int) []byte {
+	if n <= len(b.decBuff) {
+		return b.decBuff[0:n]
+	}
+
+	newLen := hob(n) << 1
+	buff := make([]byte, newLen)
+	b.decBuff = buff
+
+	return b.decBuff[0:n]
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
 	}
 
 	return b
+}
+
+func hob(num int) int {
+	if num == 0 {
+		return num
+	}
+
+	ret := 1
+
+	for num != 0 {
+		num >>= 1
+		ret <<= 1
+	}
+
+	return ret
 }
