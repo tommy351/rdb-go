@@ -3,6 +3,7 @@ package rdb
 import (
 	"fmt"
 	"io"
+	"math/bits"
 )
 
 const (
@@ -146,7 +147,13 @@ func (b *bufferReader) GetDecompressBuff(n int) []byte {
 		return b.decBuff[0:n]
 	}
 
-	newLen := hob(n) << 1
+	var newLen int
+	highestOrderBit := 1 << (bits.Len(uint(n)) - 1)
+	if highestOrderBit != n {
+		newLen = highestOrderBit << 1
+	} else {
+		newLen = highestOrderBit
+	}
 	buff := make([]byte, newLen)
 	b.decBuff = buff
 
@@ -159,19 +166,4 @@ func max(a, b int) int {
 	}
 
 	return b
-}
-
-func hob(num int) int {
-	if num == 0 {
-		return num
-	}
-
-	ret := 1
-
-	for num != 0 {
-		num >>= 1
-		ret <<= 1
-	}
-
-	return ret
 }
