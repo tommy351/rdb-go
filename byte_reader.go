@@ -13,7 +13,7 @@ const (
 
 type byteReader interface {
 	ReadBytes(n int) ([]byte, error)
-	GetDecompressBuff(n int) []byte
+	MakeByteSlice(n int) []byte
 }
 
 type sliceReader struct {
@@ -44,7 +44,7 @@ func (b *sliceReader) ReadBytes(n int) ([]byte, error) {
 	return b.data[offset : offset+n], nil
 }
 
-func (b *sliceReader) GetDecompressBuff(n int) []byte {
+func (b *sliceReader) MakeByteSlice(n int) []byte {
 	return make([]byte, n)
 }
 
@@ -142,7 +142,7 @@ func (b *bufferReader) fill(n int) error {
 	return nil
 }
 
-func (b *bufferReader) GetDecompressBuff(n int) []byte {
+func (b *bufferReader) MakeByteSlice(n int) []byte {
 	if n <= len(b.decBuff) {
 		return b.decBuff[0:n]
 	}
