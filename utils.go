@@ -241,7 +241,7 @@ func readLZF(r byteReader) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read compressed bytes: %w", err)
 	}
 
-	decompressedBuf := make([]byte, decompressedLen)
+	decompressedBuf := r.MakeByteSlice(decompressedLen)
 
 	if _, err := lzf.Decompress(compressedBuf, decompressedBuf); err != nil {
 		return nil, fmt.Errorf("failed to decompress LZF: %w", err)

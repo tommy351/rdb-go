@@ -3,6 +3,7 @@ package rdb
 import (
 	"fmt"
 	"io"
+	"math/bits"
 )
 
 const (
@@ -12,6 +13,7 @@ const (
 
 type byteReader interface {
 	ReadBytes(n int) ([]byte, error)
+	MakeByteSlice(n int) []byte
 }
 
 type sliceReader struct {
@@ -42,11 +44,17 @@ func (b *sliceReader) ReadBytes(n int) ([]byte, error) {
 	return b.data[offset : offset+n], nil
 }
 
+func (b *sliceReader) MakeByteSlice(n int) []byte {
+	return make([]byte, n)
+}
+
 type bufferReader struct {
 	r      io.Reader
 	offset int
 	length int
 	buf    []byte
+
+	decBuff []byte
 }
 
 func newBufferReader(r io.Reader) *bufferReader {
@@ -132,6 +140,24 @@ func (b *bufferReader) fill(n int) error {
 	b.length += read
 
 	return nil
+}
+
+func (b *bufferReader) MakeByteSlice(n int) []byte {
+	if n <= len(b.decBuff) {
+		return b.decBuff[0:n]
+	}
+
+	var newLen int
+	highestOrderBit := 1 << (bits.Len(uint(n)) - 1)
+	if highestOrderBit != n {
+		newLen = highestOrderBit << 1
+	} else {
+		newLen = highestOrderBit
+	}
+	buff := make([]byte, newLen)
+	b.decBuff = buff
+
+	return b.decBuff[0:n]
 }
 
 func max(a, b int) int {
