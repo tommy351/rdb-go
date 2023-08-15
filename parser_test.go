@@ -224,5 +224,42 @@ var _ = Describe("Parser", func() {
 				}
 			})
 		})
+
+		Describe("when key is filtered", func() {
+			var file *os.File
+
+			setupFixture(&file, "multi_keys_with_expiry")
+
+			It("should reset state", func() {
+				parser := NewParser(file)
+				parser.KeyFilter = func(key *DataKey) bool {
+					// "a2" is the first key inserted into the database.
+					// Here we skipped the first key to see if the expiry will be
+					// set to the next key "a1", which does not have an expiry.
+					return key.Key != "a2"
+				}
+
+				result := map[string]bool{}
+
+				for {
+					data, err := parser.Next()
+
+					if errors.Is(err, io.EOF) {
+						break
+					}
+
+					Expect(err).NotTo(HaveOccurred())
+
+					if d, ok := data.(*StringData); ok {
+						result[d.Key] = d.Expiry != nil
+					}
+				}
+
+				Expect(result).To(Equal(map[string]bool{
+					"a1": false,
+					"a0": true,
+				}))
+			})
+		})
 	})
 })

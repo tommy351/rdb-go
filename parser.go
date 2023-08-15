@@ -81,13 +81,13 @@ func NewParser(r io.Reader) *Parser {
 // Next reads data from the reader until the next token and returns one of the
 // following types:
 //
-//  *Aux
-//  *DatabaseSize
-//  *StringData
-//  *ListHead, *ListEntry, *ListData
-//  *SetHead, *SetEntry, *SetData
-//  *SortedSetHead, *SortedSetEntry, *SortedSetData
-//  *MapHead, *MapEntry, *MapData
+//	*Aux
+//	*DatabaseSize
+//	*StringData
+//	*ListHead, *ListEntry, *ListData
+//	*SetHead, *SetEntry, *SetData
+//	*SortedSetHead, *SortedSetEntry, *SortedSetData
+//	*MapHead, *MapEntry, *MapData
 //
 // Next returns a io.EOF error when a EOF token is read.
 func (p *Parser) Next() (interface{}, error) {
@@ -266,6 +266,7 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		p.dataType = nil
+		p.expiry = nil
 
 		return nil, errContinueLoop
 	}
@@ -275,7 +276,7 @@ func (p *Parser) readData() (interface{}, error) {
 
 		if errors.Is(err, io.EOF) {
 			p.dataType = nil
-
+			p.expiry = nil
 			p.iterator = nil
 
 			return nil, errContinueLoop
