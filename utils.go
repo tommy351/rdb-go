@@ -360,3 +360,55 @@ func skipFloat(r byteReader) error {
 
 	return nil
 }
+
+func checkRdbModuleOpCode(r byteReader, expected int) error {
+	val, err := readLength(r)
+	if err != nil {
+		return err
+	}
+
+	if val != expected {
+		return fmt.Errorf("illegal rdbModuleOpcode %d, expect:%d", val, expected)
+	}
+
+	return nil
+}
+
+func redisModuleReadUnsigned(r byteReader) (int, error) {
+	if err := checkRdbModuleOpCode(r, rdbModuleOpcodeUInt); err != nil {
+		return 0, err
+	}
+
+	val, err := readLength(r)
+	if err != nil {
+		return 0, err
+	}
+
+	return val, nil
+}
+
+func redisModuleReadDouble(r byteReader) (uint64, error) {
+	if err := checkRdbModuleOpCode(r, rdbModuleOpcodeDouble); err != nil {
+		return 0, err
+	}
+
+	scoreBytes, err := readUint64(r)
+	if err != nil {
+		return 0, err
+	}
+
+	return scoreBytes, nil
+}
+
+func redisModuleReadStringBuffer(r byteReader) (string, error) {
+	if err := checkRdbModuleOpCode(r, rdbModuleOpcodeString); err != nil {
+		return "", err
+	}
+
+	value, err := readString(r)
+	if err != nil {
+		return "", err
+	}
+
+	return value, nil
+}

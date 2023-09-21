@@ -49,6 +49,21 @@ const (
 
 	minVersion = 1
 	maxVersion = 9
+
+	rdbModuleOpcodeEOF    = 0
+	rdbModuleOpcodeSInt   = 1
+	rdbModuleOpcodeUInt   = 2
+	rdbModuleOpcodeFloat  = 3
+	rdbModuleOpcodeDouble = 4
+	rdbModuleOpcodeString = 5
+
+	// module ID is encoded using given module name
+	// https://github.com/redis/redis/blob/24187ed8e396625cc44a6bbeeb87e01aec55c27d/src/module.c#L6599-L6615
+	redisBloomBloomFilter    = 3465209449566631940 // MBbloom--
+	redisBloomCuckooFilter   = 3465209449562641412 // MBbloomCF
+	redisBloomTopK           = 5659418315958718464 // TopK-TYPE
+	redisBloomTDigest        = 5490471757281169408 // TDIS-TYPE
+	redisBloomCountMinSketch = 631811237999480832  // CMSk-TYPE
 )
 
 // nolint: gochecknoglobals
@@ -400,6 +415,39 @@ func (p *Parser) readData() (interface{}, error) {
 		}
 
 		return nil, errContinueLoop
+
+	case typeModule2:
+		length, err := readLength(p.reader)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read list length: %w", err)
+		}
+
+		dataType := *p.dataType
+		p.dataType = nil
+
+		switch length {
+		case redisBloomBloomFilter:
+			if err := readBloomFilter(p.reader); err != nil {
+				return nil, err
+			}
+			return key, nil
+		case redisBloomCuckooFilter:
+			if err := readCuckooFilter(p.reader); err != nil {
+				return nil, err
+			}
+			return key, nil
+		case redisBloomTopK:
+			// TODO
+			return nil, UnsupportedDataTypeError{DataType: dataType}
+		case redisBloomTDigest:
+			// TODO
+			return nil, UnsupportedDataTypeError{DataType: dataType}
+		case redisBloomCountMinSketch:
+			// TODO
+			return nil, UnsupportedDataTypeError{DataType: dataType}
+		default: // other data types beside redisbloom
+			return nil, UnsupportedDataTypeError{DataType: dataType}
+		}
 	}
 
 	return nil, UnsupportedDataTypeError{DataType: *p.dataType}
@@ -474,6 +522,157 @@ func (p *Parser) skipStrings(n int) error {
 		if err := skipString(p.reader); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// https://github.com/RedisBloom/RedisBloom/blob/21a2620e75873353fead8c5d70950d3791e36b18/src/rebloom.c#L1116-L1131
+func readBloomFilter(r byteReader) error {
+	// size
+	_, err := redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	// numFilters
+	numFilters, err := redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	// options
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	// growth
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < numFilters; i++ {
+		// entries
+		_, err = redisModuleReadUnsigned(r)
+		if err != nil {
+			return err
+		}
+
+		// error
+		_, err = redisModuleReadDouble(r)
+		if err != nil {
+			return err
+		}
+
+		// hashes
+		_, err = redisModuleReadUnsigned(r)
+		if err != nil {
+			return err
+		}
+		// bpe
+		_, err = redisModuleReadDouble(r)
+		if err != nil {
+			return err
+		}
+
+		// bits
+		_, err = redisModuleReadUnsigned(r)
+		if err != nil {
+			return err
+		}
+		// n2
+		_, err = redisModuleReadUnsigned(r)
+		if err != nil {
+			return err
+		}
+
+		// string buffer
+		_, err = redisModuleReadStringBuffer(r)
+		if err != nil {
+			return err
+		}
+
+		// size
+		_, err = redisModuleReadUnsigned(r)
+		if err != nil {
+			return err
+		}
+	}
+
+	eof, _, err := readLengthWithEncoding(r)
+	if err != nil {
+		return err
+	}
+
+	if eof != rdbModuleOpcodeEOF {
+		return errors.New(fmt.Sprintf("illegal rdbModuleOpcodeEOF %d,expect:%d", eof, rdbModuleOpcodeEOF))
+	}
+
+	return nil
+}
+
+func readCuckooFilter(r byteReader) error {
+	numFilters, err := redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	// numBuckets
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	// numItems
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	// numDeletes
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+	// bucketSize
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+	// maxIterations
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+	// expansion
+	_, err = redisModuleReadUnsigned(r)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < numFilters; i++ {
+		// filters[i].numBuckets
+		_, err = redisModuleReadUnsigned(r)
+		if err != nil {
+			return err
+		}
+
+		// string buffer
+		_, err = redisModuleReadStringBuffer(r)
+		if err != nil {
+			return err
+		}
+	}
+
+	eof, _, err := readLengthWithEncoding(r)
+	if err != nil {
+		return err
+	}
+
+	if eof != rdbModuleOpcodeEOF {
+		return errors.New(fmt.Sprintf("illegal rdbModuleOpcodeEOF %d,expect:%d", eof, rdbModuleOpcodeEOF))
 	}
 
 	return nil

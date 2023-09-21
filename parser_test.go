@@ -103,6 +103,10 @@ var _ = Describe("Parser", func() {
 	testDumpFile("zipmap_that_doesnt_compress")
 	testDumpFile("zipmap_with_big_values")
 
+	// RedisBloom
+	testDumpFile("bloom_filter")
+	testDumpFile("cuckoo_filter")
+
 	When("file is not started with the magic string", func() {
 		It("should return ErrInvalidMagicString", func() {
 			parser := NewParser(bytes.NewBufferString("YOMAN"))
