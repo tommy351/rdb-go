@@ -86,11 +86,13 @@
   Size: (int) 1,
   Expire: (int) 0
  }),
- (rdb.DataKey) {
-  Database: (int) 0,
-  Key: (string) (len=9) "newFilter",
-  Expiry: (*time.Time)(<nil>)
- }
+ (*rdb.BloomFilter)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=9) "newFilter",
+   Expiry: (*time.Time)(<nil>)
+  }
+ })
 }
 '''
 "Parser cuckoo_filter should match the golden file" = '''
@@ -119,11 +121,13 @@
   Size: (int) 1,
   Expire: (int) 0
  }),
- (rdb.DataKey) {
-  Database: (int) 0,
-  Key: (string) (len=15) "newCuckooFilter",
-  Expiry: (*time.Time)(<nil>)
- }
+ (*rdb.CuckooFilter)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=15) "newCuckooFilter",
+   Expiry: (*time.Time)(<nil>)
+  }
+ })
 }
 '''
 "Parser dictionary should match the golden file" = '''

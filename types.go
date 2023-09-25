@@ -60,3 +60,15 @@ type StringData struct {
 	DataKey
 	Value string
 }
+
+// BloomFilter represents a bloom filter data structure implemented by RedisBloom.
+// At present, It only contains data key, but does not store the actual data values.
+type BloomFilter struct {
+	DataKey
+}
+
+// CuckooFilter represents a cuckoo filter data structure implemented by RedisBloom.
+// At present, It only contains data key, but does not store the actual data values.
+type CuckooFilter struct {
+	DataKey
+}

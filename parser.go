@@ -430,12 +430,14 @@ func (p *Parser) readData() (interface{}, error) {
 			if err := readBloomFilter(p.reader); err != nil {
 				return nil, err
 			}
-			return key, nil
+
+			return &BloomFilter{key}, nil
 		case redisBloomCuckooFilter:
 			if err := readCuckooFilter(p.reader); err != nil {
 				return nil, err
 			}
-			return key, nil
+
+			return &CuckooFilter{key}, nil
 		case redisBloomTopK:
 			// TODO
 			return nil, UnsupportedDataTypeError{DataType: dataType}
