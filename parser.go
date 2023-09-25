@@ -601,13 +601,8 @@ func readBloomFilter(r byteReader) error {
 		}
 	}
 
-	eof, _, err := readLengthWithEncoding(r)
-	if err != nil {
+	if err := checkRdbModuleOpCode(r, rdbModuleOpcodeEOF); err != nil {
 		return err
-	}
-
-	if eof != rdbModuleOpcodeEOF {
-		return errors.New(fmt.Sprintf("illegal rdbModuleOpcodeEOF %d,expect:%d", eof, rdbModuleOpcodeEOF))
 	}
 
 	return nil
@@ -666,13 +661,8 @@ func readCuckooFilter(r byteReader) error {
 		}
 	}
 
-	eof, _, err := readLengthWithEncoding(r)
-	if err != nil {
+	if err := checkRdbModuleOpCode(r, rdbModuleOpcodeEOF); err != nil {
 		return err
-	}
-
-	if eof != rdbModuleOpcodeEOF {
-		return errors.New(fmt.Sprintf("illegal rdbModuleOpcodeEOF %d,expect:%d", eof, rdbModuleOpcodeEOF))
 	}
 
 	return nil
