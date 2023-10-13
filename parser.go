@@ -438,13 +438,7 @@ func (p *Parser) readData() (interface{}, error) {
 			}
 
 			return &CuckooFilter{key}, nil
-		case redisBloomTopK:
-			// TODO
-			return nil, UnsupportedDataTypeError{DataType: dataType}
-		case redisBloomTDigest:
-			// TODO
-			return nil, UnsupportedDataTypeError{DataType: dataType}
-		case redisBloomCountMinSketch:
+		case redisBloomTopK, redisBloomTDigest, redisBloomCountMinSketch:
 			// TODO
 			return nil, UnsupportedDataTypeError{DataType: dataType}
 		default: // other data types beside redisbloom
