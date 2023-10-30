@@ -368,7 +368,7 @@ func checkRdbModuleOpCode(r byteReader, expected int) error {
 	}
 
 	if val != expected {
-		return RdbModuleOpcodeError{Actual: val, Expected: expected}
+		return ModuleOpcodeError{Actual: val, Expected: expected}
 	}
 
 	return nil
