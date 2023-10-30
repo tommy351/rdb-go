@@ -449,6 +449,7 @@ func (p *Parser) readData() (interface{}, error) {
 	return nil, UnsupportedDataTypeError{DataType: *p.dataType}
 }
 
+// nolint: gocognit
 func (p *Parser) skipData() error {
 	switch *p.dataType {
 	case typeString, typeHashZipMap, typeListZipList, typeSetIntSet, typeZSetZipList, typeHashZipList:
