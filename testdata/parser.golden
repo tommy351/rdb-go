@@ -60,6 +60,76 @@
  })
 }
 '''
+"Parser bloom_filter should match the golden file" = '''
+([]interface {}) (len=7) {
+ (*rdb.Aux)({
+  Key: (string) (len=9) "redis-ver",
+  Value: (string) (len=5) "6.2.5"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=10) "redis-bits",
+  Value: (string) (len=2) "64"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=5) "ctime",
+  Value: (string) (len=10) "1695181590"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=8) "used-mem",
+  Value: (string) (len=6) "891944"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=12) "aof-preamble",
+  Value: (string) (len=1) "0"
+ }),
+ (*rdb.DatabaseSize)({
+  Size: (int) 1,
+  Expire: (int) 0
+ }),
+ (*rdb.BloomFilter)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=9) "newFilter",
+   Expiry: (*time.Time)(<nil>)
+  }
+ })
+}
+'''
+"Parser cuckoo_filter should match the golden file" = '''
+([]interface {}) (len=7) {
+ (*rdb.Aux)({
+  Key: (string) (len=9) "redis-ver",
+  Value: (string) (len=5) "6.2.5"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=10) "redis-bits",
+  Value: (string) (len=2) "64"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=5) "ctime",
+  Value: (string) (len=10) "1695186997"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=8) "used-mem",
+  Value: (string) (len=6) "892776"
+ }),
+ (*rdb.Aux)({
+  Key: (string) (len=12) "aof-preamble",
+  Value: (string) (len=1) "0"
+ }),
+ (*rdb.DatabaseSize)({
+  Size: (int) 1,
+  Expire: (int) 0
+ }),
+ (*rdb.CuckooFilter)({
+  DataKey: (rdb.DataKey) {
+   Database: (int) 0,
+   Key: (string) (len=15) "newCuckooFilter",
+   Expiry: (*time.Time)(<nil>)
+  }
+ })
+}
+'''
 "Parser dictionary should match the golden file" = '''
 ([]interface {}) (len=1002) {
  (*rdb.HashHead)({

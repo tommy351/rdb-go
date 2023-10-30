@@ -81,3 +81,12 @@ type ZipListEndError struct {
 func (z ZipListEndError) Error() string {
 	return fmt.Sprintf("invalid ziplist end %d", z.Value)
 }
+
+type ModuleOpcodeError struct {
+	Expected int
+	Actual   int
+}
+
+func (r ModuleOpcodeError) Error() string {
+	return fmt.Sprintf("illegal rdbModuleOpcode %d, expect:%d", r.Actual, r.Expected)
+}

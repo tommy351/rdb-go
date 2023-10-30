@@ -10,4 +10,8 @@ linters:
     - wsl
     - testpackage
     - exhaustivestruct
+    - deadcode
+    - golint
+    - unparam
+    - varcheck
   fast: false
