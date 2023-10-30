@@ -419,7 +419,7 @@ func (p *Parser) readData() (interface{}, error) {
 	case typeModule2:
 		length, err := readLength(p.reader)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read list length: %w", err)
+			return nil, fmt.Errorf("failed to read module length: %w", err)
 		}
 
 		dataType := *p.dataType
@@ -504,7 +504,30 @@ func (p *Parser) skipData() error {
 		// TODO
 
 	case typeModule2:
-		// TODO
+		length, err := readLength(p.reader)
+		if err != nil {
+			return fmt.Errorf("failed to read module length: %w", err)
+		}
+
+		switch length {
+		case redisBloomBloomFilter:
+			if err := readBloomFilter(p.reader); err != nil {
+				return err
+			}
+
+			return nil
+		case redisBloomCuckooFilter:
+			if err := readCuckooFilter(p.reader); err != nil {
+				return err
+			}
+
+			return nil
+		case redisBloomTopK, redisBloomTDigest, redisBloomCountMinSketch:
+			// TODO
+			return UnsupportedDataTypeError{DataType: typeModule2}
+		default: // other data types beside redisbloom
+			return UnsupportedDataTypeError{DataType: typeModule2}
+		}
 
 	case typeStreamListPacks:
 		// TODO

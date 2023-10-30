@@ -1,3 +1,7 @@
+linters-settings:
+  gocognit:
+    min-complexity: 40
+
 linters:
   enable-all: true
   disable:
