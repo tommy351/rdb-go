@@ -205,6 +205,10 @@ var _ = Describe("Parser", func() {
 		testExcludeKey("regular_sorted_set", "force_sorted_set")
 		testExcludeKey("sorted_set_as_ziplist", "sorted_set_as_ziplist")
 
+		// RedisBloom
+		testExcludeKey("bloom_parser_filters", "newFilter2")
+		testExcludeKey("bloom_parser_filters", "newCuckooFilter2")
+
 		Describe("Filter by database", func() {
 			var file *os.File
 
